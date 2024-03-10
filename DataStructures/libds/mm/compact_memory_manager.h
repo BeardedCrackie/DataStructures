@@ -95,9 +95,13 @@ namespace ds::mm {
         if (this->end_ == this->limit_) {
             this->changeCapacity(this->allocatedBlockCount_ == 0 ? 10 : 2 * this->allocatedBlockCount_);
         }
-        BlockType adr = this->base_ + index;
+        BlockType* adr = this->base_ + index;
         if (adr != this->end_) {
-            std::memmove(adr + 1, adr, (this->end_ - adr) * sizeof(BlockType);
+            std::memmove(
+                adr + 1, 
+                adr, 
+                (this->end_ - adr) * sizeof(BlockType)
+            );
         }
         placement_new(adr);
         ++this->end_;
@@ -108,7 +112,7 @@ namespace ds::mm {
     template<typename BlockType>
     void CompactMemoryManager<BlockType>::releaseMemory(BlockType* pointer)
     {
-        lockType* cur = pointer;
+        BlockType* cur = pointer;
         while (cur != this->end_) {
             destroy(cur);
             ++cur;
@@ -226,7 +230,7 @@ namespace ds::mm {
     template<typename BlockType>
     BlockType& CompactMemoryManager<BlockType>::getBlockAt(size_t index)
     {
-        return this->base_ + index;
+        return *(this->base_ + index);
     }
 
     template<typename BlockType>
