@@ -17,11 +17,11 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 
 	mm->add_test(std::make_unique<ds::tests::MemoryManagerTest>());
 
-	//CompactMemoryManagerTest
+	// cv 02 CompactMemoryManagerTest
 	mm->add_test(std::make_unique<ds::tests::CompactMemoryManagerTest>());
 
-	// TODO 03
-	//amt->add_test(std::make_unique<ds::tests::ImplicitSequenceTest>());
+	// cv 03 ImplicitSequenceTest
+	amt->add_test(std::make_unique<ds::tests::ImplicitSequenceTest>());
 
 	// TODO 04
 	//amt->add_test(std::make_unique<ds::tests::ExplicitSequenceTest>());
