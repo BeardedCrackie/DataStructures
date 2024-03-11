@@ -152,13 +152,7 @@ namespace ds::mm {
         if (this != &other) {
             this->releaseMemory(this->base_);
             this->allocatedBlockCount_ = other.MemoryManager<BlockType>::allocatedBlockCount_;
-            void* newBase = std::realloc(this->base_, other.getAllocatedCapacitySize());
-            if (newBase == nullptr) {
-                throw std::bad_alloc();
-            }
-            this->base_ = static_cast<BlockType*>(newBase);
-            this->end_ = this->base_ + allocatedBlockCount_;
-            this->limit_ = this->base_ + (other.limit_ - other.base_);
+            this->changeCapacity(other.getCapacity());
             for (int i = 0; i < this->getAllocatedBlockCount(); i++) {
                 placement_copy(base_ + i, *(other.base_ + i));
             }
