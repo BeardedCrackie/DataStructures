@@ -130,10 +130,9 @@ namespace ds::utils
     template <class List>
     void ListRemoveAnalyzer<List>::executeOperation(List& structure)
     {
-        // TODO 01 - doplnil som podla MS Teams
+        // cv 01 - doplnil som podla MS Teams
         auto data = this->getRandomData();
         structure.insert(structure.begin(), data);
-        // throw std::runtime_error("Not implemented yet");
     }
 
     //----------
