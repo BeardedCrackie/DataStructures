@@ -132,6 +132,7 @@
     <ClCompile Include="SemPr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algorithm.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="NetworkRoute.h" />
   </ItemGroup>

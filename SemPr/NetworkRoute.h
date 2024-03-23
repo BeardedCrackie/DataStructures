@@ -1,45 +1,52 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <bitset>
 #include <string>
+#include <sstream>
 
-using namespace std;
+//using namespace std;
 
 class NetworkRoute
 {
 public:
 	NetworkRoute();
 	//todo NetworkRoute(NetworkRoute& other);
-	void setNetworkAddress(string address);
-	//todo void setNetworkMask(string mask);
+	void setNetworkAddress(std::string address);
+	//todo void setNetworkMask(std::string mask);
 	void setNetworkPrefix(int prefix);
-	void setNextHop(string nextHopAddress);
-	void setTtl(double ttl) { this->ttl = ttl; };
+	void setNextHop(std::string nextHopAddress);
+	void setTtl(std::string ttl);
 	void printRoute();
+
+	std::bitset<32> getNetworkAddress() { return this->networkAddress; };
+	std::bitset<32> getNetworkMask() { return this->networkMask; };
+	int getPrefix() { return this->prefix; }
+	std::bitset<32> getNextHop() { return this->nextHop; };
+	long getTtl() { return this->ttl; };
+
+	static std::string bitsetToIp(std::bitset<32> addressInBitset);
+	static std::bitset<32> ipToBitset(std::string ipAddress);
+
 private:
-	bitset<32> networkAddress;
-	bitset<32> networkMask;
+	std::bitset<32> networkAddress;
+	std::bitset<32> networkMask;
 	int prefix;
-	bitset<32> nextHop;
-	double ttl;
-
-	string bitsetToIp(bitset<32> addressInBitset);
-	bitset<32> ipToBitset(string ipAddress);
-
+	std::bitset<32> nextHop;
+	long ttl;
 };
 
-inline NetworkRoute::NetworkRoute()
+NetworkRoute::NetworkRoute()
 {
-	this->networkAddress = bitset<32>();
+	this->networkAddress = std::bitset<32>();
 	this->prefix = 0;
-	this->networkMask = bitset<32>();
-	this->nextHop = bitset<32>();
+	this->networkMask = std::bitset<32>();
+	this->nextHop = std::bitset<32>();
 	this->ttl = 0;
 }
 
-void NetworkRoute::setNetworkAddress(string address)
+void NetworkRoute::setNetworkAddress(std::string address)
 {
 	this->networkAddress = this->ipToBitset(address);
 }
@@ -54,46 +61,76 @@ void NetworkRoute::setNetworkPrefix(int prefix)
 	}
 }
 
-inline void NetworkRoute::setNextHop(string nextHopAddress)
+void NetworkRoute::setNextHop(std::string nextHopAddress)
 {
 	this->nextHop = this->ipToBitset(nextHopAddress);
 }
 
-inline void NetworkRoute::printRoute()
+inline void NetworkRoute::setTtl(std::string ttl)
 {
-	cout << "route: " << this->bitsetToIp(this->networkAddress) << "/" << this->prefix 
+	long time = 0;
+	long tmp = 0;
+	for (int i = 0; i < ttl.length(); i++)
+	{
+		switch (ttl[i]) {
+		case 'w':
+			tmp *= 7;
+		case 'd':
+			tmp *= 24;
+		case 'h':
+			tmp *= 60;
+		case 'm':
+			time += tmp;
+			tmp = 0;
+			break;
+		case ':':
+			tmp *= 60;
+			time += tmp;
+			tmp = 0;
+			break;
+		default:
+			tmp *= 10;
+			tmp += (long)ttl[i]-48;
+		}
+	}
+	this->ttl = time;
+}
+
+void NetworkRoute::printRoute()
+{
+	std::cout << "route: " << this->bitsetToIp(this->networkAddress) << "/" << this->prefix 
 		<< ", mask: " << this->bitsetToIp(this->networkMask)
 		<< ", next-hop: " << this->bitsetToIp(this->nextHop)
 		<< ", ttl: " << this->ttl
-		<< endl;
+		<< std::endl;
 }
 
-inline string NetworkRoute::bitsetToIp(bitset<32> addressInBitset)
+std::string NetworkRoute::bitsetToIp(std::bitset<32> addressInBitset)
 {
-	string bit_string = addressInBitset.to_string();
-	string resultIp = "";
-	istringstream bit_stream(bit_string);
-	bitset<8> tmpSet;
-	string delimeter = "";
+	std::string bitString = addressInBitset.to_string();
+	std::string resultIp = "";
+	std::istringstream bit_stream(bitString);
+	std::bitset<8> tmpSet;
+	std::string delimeter = "";
 	for (size_t i = 0; i < 4; i++)
 	{
 		bit_stream >> tmpSet;
-		resultIp += delimeter + to_string(tmpSet.to_ulong());
+		resultIp += delimeter + std::to_string(tmpSet.to_ulong());
 		delimeter = ".";
 	}
 	return resultIp;
 }
 
-inline bitset<32> NetworkRoute::ipToBitset(string ipAddress)
+std::bitset<32> NetworkRoute::ipToBitset(std::string ipAddress)
 {
-	stringstream ip_stream(ipAddress);
-	string bit_string = "";
+	std::istringstream ipStream(ipAddress);
+	std::string bitString = "";
 
-	string octet;
+	std::string octet;
 	for (size_t i = 0; i < 4; i++)
 	{
-		getline(ip_stream, octet, '.');
-		bit_string += bitset<8>(stoi(octet)).to_string();
+		std::getline(ipStream, octet, '.');
+		bitString += std::bitset<8>(stoi(octet)).to_string();
 	}
-	return bitset<32>(bit_string);
+	return std::bitset<32>(bitString);
 }

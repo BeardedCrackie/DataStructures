@@ -1,4 +1,4 @@
-﻿Zdroj;prefix;metrika;next-hop;čas
+Zdroj;prefix;metrika;next-hop;�as
 S*;0.0.0.0/0;[1/0];via 128.223.51.1;1h
 B;1.0.0.0/24;[20/0];via 12.0.1.63;2w5d
 B;1.0.4.0/22;[20/0];via 114.31.199.16;1d17h
