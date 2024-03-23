@@ -217,7 +217,6 @@ namespace ds::amt {
 	template<typename DataType>
     size_t ImplicitSequence<DataType>::indexOfPrevious(size_t currentIndex) const
 	{
-		// TODO doplnit overenie, chyba cast kodu
 		return currentIndex > 0 ? currentIndex - 1 : INVALID_INDEX;
 	}
 
