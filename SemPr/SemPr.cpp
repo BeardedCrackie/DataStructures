@@ -3,11 +3,16 @@
 
 #include <iostream>
 #include <libds/amt/implicit_sequence.h>
+#include "NetworkRoute.h"
+using namespace std;
 
 int main()
 {
-    std::cout << "Hello World!\n";
-    ds::amt::ImplicitSequence<int> is;
+    NetworkRoute network;
+    network.setNetworkAddress("192.168.0.10");
+    network.setNetworkPrefix(24);
+    network.setNextHop("192.168.5.1");
+    network.printRoute();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
