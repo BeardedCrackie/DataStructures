@@ -79,7 +79,7 @@ void ConsoleApp::Start() {
 			int higherBorder = stoi(upper);
 
 			networkRoutes = algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				if (rt->getTtl() >= 100 && rt->getTtl() <= higherBorder) {
+				if (rt->getTtl() >= lowerBorder && rt->getTtl() <= higherBorder) {
 					return true;
 				}
 				return false;
