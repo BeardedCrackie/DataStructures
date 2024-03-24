@@ -29,5 +29,11 @@
     <ClInclude Include="Algorithm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ConsoleApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CliMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

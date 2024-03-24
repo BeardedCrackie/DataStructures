@@ -9,19 +9,19 @@ class AlgorithmProcessor
 {
 public:
     template<typename Iterator>
-    ImplicitSequence<NetworkRoute*> processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
+    ImplicitSequence<NetworkRoute*>* processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
 };
 
 template<typename Iterator>
-inline ImplicitSequence<NetworkRoute*> AlgorithmProcessor::processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
+inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor::processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
-    ImplicitSequence<NetworkRoute*> processedSequence = ImplicitSequence<NetworkRoute*>();
+    ImplicitSequence<NetworkRoute*>* processedSequence = new ImplicitSequence<NetworkRoute*>();
     auto current = begin;
     while (current != end)
     {
         if (processFunction(*current))
         {
-            processedSequence.insertLast().data_ = *current;
+            processedSequence->insertLast().data_ = *current;
         }
         ++current;
     }

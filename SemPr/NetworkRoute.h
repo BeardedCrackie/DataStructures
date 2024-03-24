@@ -75,10 +75,13 @@ inline void NetworkRoute::setTtl(std::string ttl)
 		switch (ttl[i]) {
 		case 'w':
 			tmp *= 7;
+			[[fallthrough]];
 		case 'd':
 			tmp *= 24;
+			[[fallthrough]];
 		case 'h':
 			tmp *= 60;
+			[[fallthrough]];
 		case 'm':
 			time += tmp;
 			tmp = 0;

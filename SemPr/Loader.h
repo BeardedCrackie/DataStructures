@@ -25,7 +25,6 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 	std::string line;
 	getline(inputFile, line); //first line is header
 
-	
 	std::string value;
 
 	//getline(inputFile, line) && line != "")

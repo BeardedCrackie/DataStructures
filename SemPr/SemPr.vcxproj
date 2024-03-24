@@ -133,6 +133,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm.h" />
+    <ClInclude Include="CliMenu.h" />
+    <ClInclude Include="ConsoleApp.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="NetworkRoute.h" />
   </ItemGroup>
