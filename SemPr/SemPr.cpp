@@ -9,7 +9,7 @@ using namespace ds::amt;
 
 int main()
 {
-    initHeapMonitor();
+    //initHeapMonitor();
     SetConsoleOutputCP(1250);
     SetConsoleCP(1250);
 

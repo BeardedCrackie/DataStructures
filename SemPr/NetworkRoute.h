@@ -20,11 +20,11 @@ public:
 	void setTtl(std::string ttl);
 	void printRoute();
 
-	std::bitset<32> getNetworkAddress() { return this->networkAddress; };
-	std::bitset<32> getNetworkMask() { return this->networkMask; };
-	int getPrefix() { return this->prefix; }
-	std::bitset<32> getNextHop() { return this->nextHop; };
-	long getTtl() { return this->ttl; };
+	std::bitset<32> getNetworkAddress() const { return this->networkAddress; };
+	std::bitset<32> getNetworkMask() const { return this->networkMask; };
+	int getPrefix() const { return this->prefix; }
+	std::bitset<32> getNextHop() const { return this->nextHop; };
+	long getTtl() const { return this->ttl; };
 
 	static std::string bitsetToIp(std::bitset<32> addressInBitset);
 	static std::bitset<32> ipToBitset(std::string ipAddress);
@@ -110,18 +110,35 @@ void NetworkRoute::printRoute()
 
 std::string NetworkRoute::bitsetToIp(std::bitset<32> addressInBitset)
 {
-	std::string bitString = addressInBitset.to_string();
 	std::string resultIp = "";
-	std::istringstream bit_stream(bitString);
-	std::bitset<8> tmpSet;
-	std::string delimeter = "";
-	for (size_t i = 0; i < 4; i++)
+	long tmp = 0;
+	string delimeter = "";
+	for (int i = 31; i >= 0; i--)
 	{
-		bit_stream >> tmpSet;
-		resultIp += delimeter + std::to_string(tmpSet.to_ulong());
-		delimeter = ".";
+		tmp *= 2;
+		tmp += addressInBitset[i];
+		if (i % 8 == 0) {
+			resultIp += delimeter;
+			resultIp += to_string(tmp);
+			tmp = 0;
+			delimeter = ".";
+		}
 	}
 	return resultIp;
+
+	//todo optimalization
+	//std::string bitString = addressInBitset.to_string();
+	//std::string resultIp = "";
+	//std::istringstream bit_stream(bitString);
+	//std::bitset<8> tmpSet;
+	//std::string delimeter = "";
+	//for (size_t i = 0; i < 4; i++)
+	//{
+	//	bit_stream >> tmpSet;
+	//	resultIp += delimeter + std::to_string(tmpSet.to_ulong());
+	//	delimeter = ".";
+	//}
+	//return resultIp;
 }
 
 std::bitset<32> NetworkRoute::ipToBitset(std::string ipAddress)
