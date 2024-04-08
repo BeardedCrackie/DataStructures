@@ -324,15 +324,9 @@ namespace ds::amt {
     void BinaryHierarchy<BlockType>::processInOrder(const BlockType* node, std::function<void(const BlockType*)> operation) const
 	{
 		if (node != nullptr) {
-			BlockType* tmpSon = this->accessLeftSon(*node);
-			if (tmpSon != nullptr) {
-				this->processPreOrder(tmpSon, operation);
-			}
-			operation(node);
-			tmpSon = this->accessRightSon(*node);
-			if (tmpSon != nullptr) {
-				this->processPreOrder(tmpSon, operation);
-			}
+			this->processInOrder(this->accessLeftSon(*node), operation);
+			operation(node);	
+			this->processInOrder(this->accessRightSon(*node), operation);
 		}
 	}
 
@@ -475,9 +469,16 @@ namespace ds::amt {
 	template<typename BlockType>
     typename Hierarchy<BlockType>::PreOrderHierarchyIterator& Hierarchy<BlockType>::PreOrderHierarchyIterator::operator++()
 	{
-		// TODO 05
-		// po implementacii vymazte vyhodenie vynimky!
-		throw std::runtime_error("Not implemented yet");
+		if (this->tryFindNextSonInCurrentPosition()) {
+			this->savePosition(currentPosition_->currentSon_);
+		}
+		else {
+			this->removePosition();
+			if (currentPosition_ != nullptr) {
+				this->operator++();
+			}
+		}
+		return *this;
 	}
 
 	template<typename BlockType>
