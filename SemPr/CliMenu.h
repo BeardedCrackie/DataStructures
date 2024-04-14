@@ -67,6 +67,7 @@ public:
     CliMenu(std::string menu_name) : MenuItem(menu_name) {
         this->menu_list = vector<MenuItem*>();
     };
+    ~CliMenu();
     void PrintMenu();
     void AddItem(MenuItem* item);
     void SelectItem();
@@ -75,6 +76,14 @@ public:
         this->SelectItem();
     };
 };
+
+CliMenu::~CliMenu() {
+    for (MenuItem* tmpMenu : menu_list) {
+        if (tmpMenu != nullptr) {
+            delete tmpMenu;
+        }
+    }
+}
 
 void CliMenu::PrintMenu() {
     printf("\n=== %s ===\n", this->getName().c_str());

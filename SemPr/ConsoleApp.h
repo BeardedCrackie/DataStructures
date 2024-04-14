@@ -10,27 +10,32 @@ private:
 	CliMenu main_menu;
 	ImplicitSequence<NetworkRoute*>* networkRoutes;
 public:
-	ConsoleApp() : main_menu("Main menu") {};
+	ConsoleApp();
+	~ConsoleApp();
 	void Start();
 };
+
+ConsoleApp::ConsoleApp() : main_menu("Main menu") {
+	networkRoutes = new ImplicitSequence<NetworkRoute*>();
+}
+
+ConsoleApp::~ConsoleApp() {
+	networkRoutes->clear();
+	delete networkRoutes;
+	networkRoutes = nullptr;
+}
 
 void ConsoleApp::Start() {
 
 	// ========== initialization ==========
-	networkRoutes = new ImplicitSequence<NetworkRoute*>();
-
-
-	// === routes loading ===
-	string dataPath = "C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv";
-	Loader().load(dataPath, *networkRoutes);
+	AlgorithmProcessor algp = AlgorithmProcessor<NetworkRoute*>();
+	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
 
 
 	// ========== main menu ==========
-	AlgorithmProcessor algp = AlgorithmProcessor<NetworkRoute*>();
-
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
 		{
-			ImplicitSequence<NetworkRoute*>* tmp = AlgorithmProcessor<ImplicitSequence<NetworkRoute*>>().processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			AlgorithmProcessor<ImplicitSequence<NetworkRoute*>>().processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				rt->printRoute();
 				return true;
 				});
@@ -38,10 +43,10 @@ void ConsoleApp::Start() {
 
 
 	// ========== level 1 ==========
-	CliMenu level1("1 level");
-	main_menu.AddItem(&level1);
+	CliMenu* level1 = new CliMenu("1 level");
+	main_menu.AddItem(level1);
 
-	level1.AddItem(new MenuActionItem("matchWithAddress", [&]()
+	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
 			std::cout << "type ip address in format X.X.X.X" << endl;
 			string ipAddr;
@@ -59,8 +64,7 @@ void ConsoleApp::Start() {
 				return true;
 				});
 		}));
-
-	level1.AddItem(new MenuActionItem("matchLifetime", [&]()
+	level1->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
 			std::cout << "type lower ttl boundary" << endl;
 			string lower;
@@ -78,16 +82,15 @@ void ConsoleApp::Start() {
 				return false;
 				});
 		}));
-
-	level1.AddItem(new MenuActionItem("print routes", [&]()
+	level1->AddItem(new MenuActionItem("print routes", [&]()
 		{
 			algp.printRoutes();
 		}));
-
-	level1.AddItem(new MenuActionItem("flush algorithm", [&]()
+	level1->AddItem(new MenuActionItem("flush algorithm", [&]()
 		{
 			algp.flush();
 		}));
 
+	// ======== start console app ========
 	this->main_menu.apply();
 }
