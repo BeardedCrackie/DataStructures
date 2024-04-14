@@ -10,6 +10,7 @@ class AlgorithmProcessor
 {
 public:
     AlgorithmProcessor();
+    ~AlgorithmProcessor();
     template<typename Iterator>
     ImplicitSequence<NetworkRoute*>* processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
     void printRoutes();
@@ -22,6 +23,13 @@ template<typename T>
 inline AlgorithmProcessor<T>::AlgorithmProcessor()
 {
     networkRoutes = new ImplicitSequence<NetworkRoute*>();
+}
+
+template<typename T>
+inline AlgorithmProcessor<T>::~AlgorithmProcessor()
+{
+    delete networkRoutes;
+    networkRoutes = nullptr;
 }
 
 template<typename T>
@@ -44,13 +52,6 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable
 template<typename T>
 inline void AlgorithmProcessor<T>::printRoutes()
 {
-    /*
-    this.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-        rt->printRoute();
-        return true;
-        });
-    */
-
     for (auto current = networkRoutes->begin(); current != networkRoutes->end(); ++current) {
         NetworkRoute* rt = *current;
         rt->printRoute();
