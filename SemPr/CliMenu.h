@@ -70,6 +70,7 @@ public:
     void PrintMenu();
     void AddItem(MenuItem* item);
     void SelectItem();
+    void RunItem(MenuItem* item);
     void apply() override {
         this->SelectItem();
     };
@@ -109,4 +110,8 @@ void CliMenu::SelectItem() {
             std::cout << "Wrong choice" << std::endl;
         }
     }
+}
+
+void CliMenu::RunItem(MenuItem* item) {
+    item->apply();
 }
