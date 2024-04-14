@@ -9,10 +9,22 @@ using namespace ds::amt;
 
 int main()
 {
-    //initHeapMonitor();
+    initHeapMonitor();
     SetConsoleOutputCP(1250);
     SetConsoleCP(1250);
 
+    //getline(loadedStream, value, ';'); //source, not important so skip
+    //getline(loadedStream, value, '/'); //address
+    //newRoute->setNetworkAddress(value);
+    //getline(loadedStream, value, ';'); //prefix
+    //newRoute->setNetworkPrefix(stoi(value));
+    //getline(loadedStream, value, ';'); //metrics, not important so skip
+    //getline(loadedStream, value, ';'); //next-hop
+    //newRoute->setNextHop(value.substr(3));
+    //getline(loadedStream, value, ';'); //time in string
+    //newRoute->setTtl(value);
+    //delete newRoute;
+    //newRoute = 0;
     //std::cout << "--load routes--" << std::endl;
     //ImplicitSequence<NetworkRoute*> routeSequence = ImplicitSequence<NetworkRoute*>();
     //
