@@ -15,21 +15,22 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 	auto amt  = std::make_unique<ds::tests::CompositeTest>("amt");
 	auto adt  = std::make_unique<ds::tests::CompositeTest>("adt");
 
+	// cv 02 MemoryManagerTest
 	mm->add_test(std::make_unique<ds::tests::MemoryManagerTest>());
 
-	// cv 02 CompactMemoryManagerTest
+	// cv 03 CompactMemoryManagerTest
 	mm->add_test(std::make_unique<ds::tests::CompactMemoryManagerTest>());
 
-	// cv 03 ImplicitSequenceTest
+	// cv 04 ImplicitSequenceTest
 	amt->add_test(std::make_unique<ds::tests::ImplicitSequenceTest>());
 
-	// cv 04 ExplicitSequenceTest
+	// cv 05 ExplicitSequenceTest
 	amt->add_test(std::make_unique<ds::tests::ExplicitSequenceTest>());
 
-	// cv 05 ImplicitHierarchyTest
+	// cv 06-07 ImplicitHierarchyTest
 	amt->add_test(std::make_unique<ds::tests::ImplicitHierarchyTest>());
 
-	// TODO 07
+	// cv 08 ExplicitHierarchyTest
 	amt->add_test(std::make_unique<ds::tests::ExplicitHierarchyTest>());
 	amt->add_test(std::make_unique<ds::tests::HierarchyTest>());
 
