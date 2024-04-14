@@ -48,5 +48,7 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 		newRoute->setTtl(value);
         routeSequence.insertLast().data_ = newRoute;
 	}
+	inputFile.close();
+	inputFile.clear();
 }
 
