@@ -186,9 +186,9 @@ namespace ds::amt {
 
             const ExplicitSequence<BlockType>& otherExplicitSequence = dynamic_cast<const ExplicitSequence<BlockType>&>(other);
             otherExplicitSequence.processAllBlocksForward([&](const BlockType* b)
-            {
-                this->insertLast().data_ = b->data_;
-            });
+                {
+                    this->insertLast().data_ = b->data_;
+                });
         }
 
         return *this;
@@ -197,13 +197,13 @@ namespace ds::amt {
     template<typename BlockType>
     void ExplicitSequence<BlockType>::clear()
     {
-        BlockType* cur = this->first_;
-        while (cur != nullptr) {
-            this->first_ = this->accessNext(*cur);
-            this->memoryManager_->releaseMemory(cur);
-            cur = this->first_;
-        }
-        this->last_ = nullptr;
+        last_ = first_;
+        while (first_ != nullptr)
+        {
+            first_ = this->accessNext(*first_);
+            AMS<BlockType>::memoryManager_->releaseMemory(last_);
+            last_ = first_;
+        } 
     }
 
     template<typename BlockType>
@@ -356,17 +356,30 @@ namespace ds::amt {
     template<typename BlockType>
     void ExplicitSequence<BlockType>::removeFirst()
     {
-        // TODO 04
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (first_ == last_) {
+            memoryManager_->releaseMemory(first_);
+            first_ = last_ = nullptr;
+        }
+        else {
+            BlockType* newFirst = accessNext(*first_);
+            memoryManager_->releaseMemory(first_);
+            first_ = newFirst;
+        }
     }
 
     template<typename BlockType>
     void ExplicitSequence<BlockType>::removeLast()
     {
-        // TODO 04
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (first_ == last_) {
+            memoryManager_->releaseMemory(first_);
+            first_ = last_ = nullptr;
+        }
+        else {
+            BlockType* newLast = this->accessPrevious(*last_);
+            AMS<BlockType>::memoryManager_->releaseMemory(last_);
+            last_ = newLast;
+            last_->next_ = nullptr;
+        }
     }
 
     template<typename BlockType>
@@ -385,17 +398,27 @@ namespace ds::amt {
     template<typename BlockType>
     void ExplicitSequence<BlockType>::removeNext(const BlockType& block)
     {
-        // TODO 04
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        BlockType* rmBLock = accessNext(block);
+        if (rmBLock == accessLast()) {
+            this->removeLast();
+        }
+        else {
+            this->disconnectBlock(rmBLock);
+            AMS<BlockType>::memoryManager_->releaseMemory(rmBLock);
+        }
     }
 
     template<typename BlockType>
     void ExplicitSequence<BlockType>::removePrevious(const BlockType& block)
     {
-        // TODO 04
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        BlockType* rmBLock = accessPrevious(block);
+        if (rmBLock == first_) {
+            this->removeFirst();
+        }
+        else {
+            this->disconnectBlock(rmBLock);
+            AMS<BlockType>::memoryManager_->releaseMemory(rmBLock);
+        }
     }
 
     template<typename BlockType>
@@ -476,9 +499,27 @@ namespace ds::amt {
     template<typename DataType>
     typename DoublyLinkedSequence<DataType>::BlockType* DoublyLinkedSequence<DataType>::access(size_t index) const
     {
-        // TODO 04
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        BlockType* result = nullptr;
+        if (index < this->size())
+        {
+            if (index < this->size() / 2)
+            {
+                result = this->first_;
+                for (size_t i = 0; i < index; i++)
+                {
+                    result = this->accessNext(*result);
+                }
+            }
+            else
+            {
+                result = this->last_;
+                for (size_t i = 0; i < this->size() - index - 1; i++)
+                {
+                    result = this->accessPrevious(*result);
+                }
+            }
+        }
+        return result;
     }
 
     template<typename DataType>
