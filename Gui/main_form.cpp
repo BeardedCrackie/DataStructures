@@ -30,12 +30,12 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 	// cv 06-07 ImplicitHierarchyTest
 	amt->add_test(std::make_unique<ds::tests::ImplicitHierarchyTest>());
 
-	// cv 08 ExplicitHierarchyTest
+	// cv 08 ExplicitHierarchyTest HierarchyTest
 	amt->add_test(std::make_unique<ds::tests::ExplicitHierarchyTest>());
 	amt->add_test(std::make_unique<ds::tests::HierarchyTest>());
 
-	// TODO 08
-	//adt->add_test(std::make_unique<ds::tests::ListTest>());
+	// cv 09 ListTest ArraysTest
+	adt->add_test(std::make_unique<ds::tests::ListTest>());
 	//adt->add_test(std::make_unique<ds::tests::ArraysTest>());
 
 	// TODO 09
