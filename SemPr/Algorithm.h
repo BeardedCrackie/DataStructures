@@ -29,7 +29,7 @@ inline AlgorithmProcessor<T>::AlgorithmProcessor()
 template<typename T>
 inline AlgorithmProcessor<T>::~AlgorithmProcessor()
 {
-    delete this->networkRoutes;
+    delete networkRoutes;
     networkRoutes = nullptr;
 }
 
@@ -37,9 +37,7 @@ template<typename T>
 template<typename Iterator>
 inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
-    auto current = begin;
-    while (current != end)
-    {
+    for (auto current = begin; current != end; ++current) {
         if (processFunction(*current))
         {
             networkRoutes->insertLast().data_ = *current;
