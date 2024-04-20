@@ -62,7 +62,7 @@ void ConsoleApp::Start() {
 
 			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				std::bitset<32> parent = rt->getNetworkAddress();
-				for (int i = 0; i < rt->getPrefix(); i++)
+				for (size_t i = 0; i < rt->getPrefix(); i++)
 				{
 					if (parent[31 - i] != compareRt[31 - i]) {
 						return false;

@@ -35,21 +35,18 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 		if (line == "") {
 			break;
 		}
-		routeSequence.insertLast().data_ = new NetworkRoute();
-        //NetworkRoute* newRoute = new NetworkRoute();
+        NetworkRoute* newRoute = new NetworkRoute();
         getline(loadedStream, value, ';'); //source, not important so skip
 		getline(loadedStream, value, '/'); //address
-		routeSequence.accessLast()->data_->setNetworkAddress(value);
+		newRoute->setNetworkAddress(value);
 		getline(loadedStream, value, ';'); //prefix
-		routeSequence.accessLast()->data_->setNetworkPrefix(stoi(value));
+		newRoute->setNetworkPrefix(stoi(value));
 		getline(loadedStream, value, ';'); //metrics, not important so skip
 		getline(loadedStream, value, ';'); //next-hop
-		routeSequence.accessLast()->data_->setNextHop(value.substr(3));
+		newRoute->setNextHop(value.substr(3));
 		getline(loadedStream, value, ';'); //time in string
-		routeSequence.accessLast()->data_->setTtl(value);
-		
-		//routeSequence.accessLast()->data_ = newRoute;
-		//delete newRoute;
+		newRoute->setTtl(value);
+		routeSequence.insertLast().data_ = newRoute;
 	}
 	inputFile.close();
 	inputFile.clear();

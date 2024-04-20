@@ -5,7 +5,6 @@
 #include <libds/amt/implicit_sequence.h>
 #include <windows.h>
 #include "ConsoleApp.h"
-#include "SemPr.h"
 
 
 using namespace ds::amt;
