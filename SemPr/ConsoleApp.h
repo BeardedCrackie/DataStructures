@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "CliMenu.h"
 #include "NetworkRoute.h"
 #include "Algorithm.h"
@@ -13,17 +14,23 @@ public:
 	ConsoleApp();
 	~ConsoleApp();
 	void Start();
+	void Stop();
 };
 
 ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	networkRoutes = new ImplicitSequence<NetworkRoute*>();
 }
 
+
 ConsoleApp::~ConsoleApp() {
-	networkRoutes->clear();
+	for (size_t i = 0; i < networkRoutes->size(); ++i) {
+		delete networkRoutes->access(i)->data_;
+	}
+	//networkRoutes->clear();
 	delete networkRoutes;
 	networkRoutes = nullptr;
 }
+
 
 void ConsoleApp::Start() {
 
@@ -35,7 +42,7 @@ void ConsoleApp::Start() {
 	// ========== main menu ==========
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
 		{
-			AlgorithmProcessor<ImplicitSequence<NetworkRoute*>>().processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				rt->printRoute();
 				return true;
 				});
@@ -45,7 +52,7 @@ void ConsoleApp::Start() {
 	// ========== level 1 ==========
 	CliMenu* level1 = new CliMenu("1 level");
 	main_menu.AddItem(level1);
-
+	
 	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
 			std::cout << "type ip address in format X.X.X.X" << endl;
@@ -64,6 +71,7 @@ void ConsoleApp::Start() {
 				return true;
 				});
 		}));
+	
 	level1->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
 			std::cout << "type lower ttl boundary" << endl;
@@ -91,6 +99,22 @@ void ConsoleApp::Start() {
 			algp.flush();
 		}));
 
+	// ======== flush network ========
+	this->main_menu.AddItem(new MenuActionItem("flush", [&]()
+		{
+			delete networkRoutes;
+			networkRoutes = nullptr;
+		}));
+
 	// ======== start console app ========
 	this->main_menu.apply();
+}
+
+
+inline void ConsoleApp::Stop()
+{
+	for (size_t i = 0; i < networkRoutes->size(); ++i) {
+		delete networkRoutes->access(i)->data_;
+	}
+	networkRoutes->clear();
 }
