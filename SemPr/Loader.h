@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libds/heap_monitor.h>
 #include <libds/amt/implicit_sequence.h>
 #include "NetworkRoute.h"
 #include <iostream>
@@ -34,19 +35,21 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 		if (line == "") {
 			break;
 		}
-
-        NetworkRoute* newRoute = new NetworkRoute();
+		routeSequence.insertLast().data_ = new NetworkRoute();
+        //NetworkRoute* newRoute = new NetworkRoute();
         getline(loadedStream, value, ';'); //source, not important so skip
 		getline(loadedStream, value, '/'); //address
-		newRoute->setNetworkAddress(value);
+		routeSequence.accessLast()->data_->setNetworkAddress(value);
 		getline(loadedStream, value, ';'); //prefix
-		newRoute->setNetworkPrefix(stoi(value));
+		routeSequence.accessLast()->data_->setNetworkPrefix(stoi(value));
 		getline(loadedStream, value, ';'); //metrics, not important so skip
 		getline(loadedStream, value, ';'); //next-hop
-		newRoute->setNextHop(value.substr(3));
+		routeSequence.accessLast()->data_->setNextHop(value.substr(3));
 		getline(loadedStream, value, ';'); //time in string
-		newRoute->setTtl(value);
-        routeSequence.insertLast().data_ = newRoute;
+		routeSequence.accessLast()->data_->setTtl(value);
+		
+		//routeSequence.accessLast()->data_ = newRoute;
+		//delete newRoute;
 	}
 	inputFile.close();
 	inputFile.clear();

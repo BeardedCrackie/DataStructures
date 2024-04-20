@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libds/heap_monitor.h>
 #include "NetworkRoute.h"
 #include <libds/amt/implicit_sequence.h>
 
@@ -28,7 +29,7 @@ inline AlgorithmProcessor<T>::AlgorithmProcessor()
 template<typename T>
 inline AlgorithmProcessor<T>::~AlgorithmProcessor()
 {
-    delete networkRoutes;
+    delete this->networkRoutes;
     networkRoutes = nullptr;
 }
 
@@ -36,7 +37,6 @@ template<typename T>
 template<typename Iterator>
 inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
-    ImplicitSequence<NetworkRoute*>* processedSequence = new ImplicitSequence<NetworkRoute*>();
     auto current = begin;
     while (current != end)
     {
