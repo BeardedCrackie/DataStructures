@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include <libds/heap_monitor.h>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -13,6 +15,7 @@ class MenuItem {
 protected:
     std::string name;
 public:
+    virtual ~MenuItem() = default;
     MenuItem(std::string name) {
         this->name = name;
     };
@@ -72,17 +75,19 @@ public:
     void AddItem(MenuItem* item);
     void SelectItem();
     void RunItem(MenuItem* item);
-    void apply() override {
+    void apply() {
         this->SelectItem();
     };
 };
 
 CliMenu::~CliMenu() {
-    for (MenuItem* tmpMenu : menu_list) {
-        if (tmpMenu != nullptr) {
-            delete tmpMenu;
-        }
+    std::cout << "deleting: " << getName() << std::endl;
+
+    for (auto menuItem : menu_list) {
+        //std::cout << "deleting: " << menuItem->getName() << std::endl;
+        delete menuItem;
     }
+    menu_list.clear();
 }
 
 void CliMenu::PrintMenu() {
