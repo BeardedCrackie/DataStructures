@@ -236,10 +236,18 @@ namespace ds::amt {
 	template<typename BlockType>
     void ExplicitHierarchy<BlockType>::clear()
 	{
+		/*
 		this->processPostOrder(this->root_, [this](BlockType* node) {
 			this->memoryManager_->releaseMemory(node);
 			});
 		this->root_ = nullptr;
+		*/
+
+		Hierarchy<BlockType>::processPostOrder(root_, [&](BlockType* b)
+			{
+				AMS<BlockType>::memoryManager_->releaseMemory(b);
+			});
+		root_ = nullptr;
 	}
 
 	template<typename BlockType>
@@ -373,6 +381,7 @@ namespace ds::amt {
     auto MultiWayExplicitHierarchy<DataType>::emplaceSon(BlockType& parent, size_t sonOrder) -> BlockType&
 	{
 		BlockType* newSon = AbstractMemoryStructure<BlockType>::memoryManager_->allocateMemory();
+		//BlockType* newSon = AbstractMemoryStructure<BlockType>::memoryManager_->allocateMemory(sonOrder);
 		parent.sons_->insert(sonOrder).data_ = newSon;
 		newSon->parent_ = &parent;
 		return *newSon;

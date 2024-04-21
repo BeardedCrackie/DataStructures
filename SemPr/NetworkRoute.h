@@ -159,10 +159,10 @@ std::bitset<32> NetworkRoute::ipToBitset(std::string ipAddress)
 size_t NetworkRoute::getOctet(size_t octetNumber)
 {
 	size_t octetValue = 0;
-	for (size_t i = (octetNumber) * 8; i < 4; i++)
+	for (int i = 7; i >= 0; i--)
 	{
 		octetValue *= 2;
-		octetValue += this->networkAddress[i];
+		octetValue += this->networkAddress[(3 - octetNumber) * 8 + i];
 	}
 	return octetValue;
 }

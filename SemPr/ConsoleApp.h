@@ -1,15 +1,19 @@
 ﻿#pragma once
 
 #include "CliMenu.h"
+#include <libds/heap_monitor.h>
 #include "NetworkRoute.h"
 #include "Algorithm.h"
 #include "Loader.h"
 
 
+#include <libds/amt/explicit_hierarchy.h>
+
 class ConsoleApp {
 private:
 	CliMenu main_menu;
 	ImplicitSequence<NetworkRoute*>* networkRoutes;
+	KWayExplicitHierarchy<NetworkRoute*, 256>* networkHierarchy;
 public:
 	ConsoleApp();
 	~ConsoleApp();
@@ -19,10 +23,14 @@ public:
 
 ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	networkRoutes = new ImplicitSequence<NetworkRoute*>();
+	networkHierarchy = new KWayExplicitHierarchy<NetworkRoute*, 256>();
+	networkHierarchy->emplaceRoot();
 }
 
 
 ConsoleApp::~ConsoleApp() {
+	networkHierarchy->clear();
+	delete networkHierarchy;
 	for (size_t i = 0; i < networkRoutes->size(); ++i) {
 		delete networkRoutes->access(i)->data_;
 	}
@@ -37,7 +45,7 @@ void ConsoleApp::Start() {
 	// ========== initialization ==========
 	AlgorithmProcessor algp = AlgorithmProcessor<NetworkRoute*>();
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
-
+	Loader().loadNetworkHierarchy(*networkRoutes, *networkHierarchy);
 
 	// ========== main menu ==========
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
@@ -55,8 +63,8 @@ void ConsoleApp::Start() {
 	
 	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
-			std::cout << "type ip address in format X.X.X.X" << endl;
-			string ipAddr;
+			std::cout << "type ip address in format X.X.X.X" << std::endl;
+			std::string ipAddr;
 			std::cin >> ipAddr;
 			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 
@@ -74,11 +82,11 @@ void ConsoleApp::Start() {
 	
 	level1->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
-			std::cout << "type lower ttl boundary" << endl;
-			string lower;
+			std::cout << "type lower ttl boundary" << std::endl;
+			std::string lower;
 			std::cin >> lower;
-			std::cout << "type upper ttl boundary" << endl;
-			string upper;
+			std::cout << "type upper ttl boundary" << std::endl;
+			std::string upper;
 			std::cin >> upper;
 			int lowerBorder = stoi(lower);
 			int higherBorder = stoi(upper);
@@ -113,6 +121,7 @@ void ConsoleApp::Start() {
 
 inline void ConsoleApp::Stop()
 {
+
 	for (size_t i = 0; i < networkRoutes->size(); ++i) {
 		delete networkRoutes->access(i)->data_;
 	}

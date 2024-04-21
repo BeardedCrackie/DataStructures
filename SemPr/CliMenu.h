@@ -1,10 +1,9 @@
 ﻿#pragma once
 
-#include <libds/heap_monitor.h>
 #include <string>
 #include <vector>
 #include <iostream>
-using namespace std;
+//using namespace std;
 
 typedef std::function<void()> callback_function;
 
@@ -68,7 +67,7 @@ private:
     std::vector<MenuItem*> menu_list;
 public:
     CliMenu(std::string menu_name) : MenuItem(menu_name) {
-        this->menu_list = vector<MenuItem*>();
+        this->menu_list = std::vector<MenuItem*>();
     };
     ~CliMenu();
     void PrintMenu();

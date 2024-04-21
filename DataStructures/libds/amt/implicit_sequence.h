@@ -159,15 +159,24 @@ namespace ds::amt {
 	template<typename DataType>
 	typename ImplicitSequence<DataType>::BlockType& ImplicitSequence<DataType>::insertAfter(BlockType& block)
     {
+		MemoryManagerType* memManager = this->getMemoryManager();
+		return *memManager->allocateMemoryAt(memManager->calculateIndex(block) + 1);
+		
+		/*
 		size_t index = this->calculateIndex(block);
 		return *this->getMemoryManager()->allocateMemoryAt(index + 1);
+		*/
 	}
 
 	template<typename DataType>
 	typename ImplicitSequence<DataType>::BlockType& ImplicitSequence<DataType>::insertBefore(BlockType& block)
     {
+		MemoryManagerType* memManager = this->getMemoryManager();
+		return *memManager->allocateMemoryAt(memManager->calculateIndex(block));
+		/*
 		size_t index = this->calculateIndex(block);
 		return *this->getMemoryManager()->allocateMemoryAt(index);
+		*/
 	}
 
 	template<typename DataType>
