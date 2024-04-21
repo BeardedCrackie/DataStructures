@@ -357,12 +357,12 @@ namespace ds::amt {
     void ExplicitSequence<BlockType>::removeFirst()
     {
         if (first_ == last_) {
-            memoryManager_->releaseMemory(first_);
+            AMS<BlockType>::memoryManager_->releaseMemory(first_);
             first_ = last_ = nullptr;
         }
         else {
             BlockType* newFirst = accessNext(*first_);
-            memoryManager_->releaseMemory(first_);
+            AMS<BlockType>::memoryManager_->releaseMemory(first_);
             first_ = newFirst;
         }
     }
@@ -371,7 +371,7 @@ namespace ds::amt {
     void ExplicitSequence<BlockType>::removeLast()
     {
         if (first_ == last_) {
-            memoryManager_->releaseMemory(first_);
+            AMS<BlockType>::memoryManager_->releaseMemory(last_);
             first_ = last_ = nullptr;
         }
         else {

@@ -470,11 +470,11 @@ namespace ds::amt {
     typename Hierarchy<BlockType>::PreOrderHierarchyIterator& Hierarchy<BlockType>::PreOrderHierarchyIterator::operator++()
 	{
 		if (this->tryFindNextSonInCurrentPosition()) {
-			this->savePosition(currentPosition_->currentSon_);
+			this->savePosition(this->currentPosition_->currentSon_);
 		}
 		else {
 			this->removePosition();
-			if (currentPosition_ != nullptr) {
+			if (this->currentPosition_ != nullptr) {
 				this->operator++();
 			}
 		}
