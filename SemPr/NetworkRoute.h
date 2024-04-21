@@ -25,6 +25,7 @@ public:
 	int getPrefix() const { return this->prefix; }
 	std::bitset<32> getNextHop() const { return this->nextHop; };
 	long getTtl() const { return this->ttl; };
+	size_t getOctet(size_t octetNumber);
 
 	static std::string bitsetToIp(std::bitset<32> addressInBitset);
 	static std::bitset<32> ipToBitset(std::string ipAddress);
@@ -112,14 +113,14 @@ std::string NetworkRoute::bitsetToIp(std::bitset<32> addressInBitset)
 {
 	std::string resultIp = "";
 	long tmp = 0;
-	string delimeter = "";
+	std::string delimeter = "";
 	for (int i = 31; i >= 0; i--)
 	{
 		tmp *= 2;
 		tmp += addressInBitset[i];
 		if (i % 8 == 0) {
 			resultIp += delimeter;
-			resultIp += to_string(tmp);
+			resultIp += std::to_string(tmp);
 			tmp = 0;
 			delimeter = ".";
 		}
@@ -153,4 +154,15 @@ std::bitset<32> NetworkRoute::ipToBitset(std::string ipAddress)
 		bitString += std::bitset<8>(stoi(octet)).to_string();
 	}
 	return std::bitset<32>(bitString);
+}
+
+size_t NetworkRoute::getOctet(size_t octetNumber)
+{
+	size_t octetValue = 0;
+	for (size_t i = (octetNumber) * 8; i < 4; i++)
+	{
+		octetValue *= 2;
+		octetValue += this->networkAddress[i];
+	}
+	return octetValue;
 }
