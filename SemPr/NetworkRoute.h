@@ -178,6 +178,6 @@ struct NetworkHierarchyBlock
 	{
 		return !(*this == other);
 	}
-	size_t octetValue;
+	size_t octetValue = 0 - 1;
 	NetworkRoute* route = nullptr;
 };
