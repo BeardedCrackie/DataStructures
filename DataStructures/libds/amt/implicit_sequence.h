@@ -151,8 +151,8 @@ namespace ds::amt {
 	}
 
 	template<typename DataType>
-	typename ImplicitSequence<DataType>::BlockType& ImplicitSequence<DataType>::insert(size_t index)
-    {
+	auto ImplicitSequence<DataType>::insert(size_t index) -> BlockType&
+	{
 		return *this->getMemoryManager()->allocateMemoryAt(index);
 	}
 

@@ -92,7 +92,8 @@ namespace ds::mm {
     template<typename BlockType>
     BlockType* CompactMemoryManager<BlockType>::allocateMemoryAt(size_t index)
     {
-        if (this->end_ == this->limit_) {
+        /*
+        if (this->end_ == this->limit_ || index > this->getCapacity()) {
             this->changeCapacity(this->allocatedBlockCount_ == 0 ? 10 : 2 * this->allocatedBlockCount_);
         }
         BlockType* adr = this->base_ + index;
@@ -107,6 +108,25 @@ namespace ds::mm {
         ++this->end_;
         ++this->allocatedBlockCount_;
         return adr;
+        */
+        if (end_ == limit_)
+        {
+            this->changeCapacity(2 * this->getAllocatedBlockCount());
+        }
+
+        if (end_ - base_ > static_cast<std::ptrdiff_t>(index))
+        {
+            std::memmove(
+                base_ + index + 1,
+                base_ + index,
+                (end_ - base_ - index) * sizeof(BlockType)
+            );
+        }
+
+        ++MemoryManager<BlockType>::allocatedBlockCount_;
+        ++end_;
+
+        return placement_new(base_ + index);
     }
 
     template<typename BlockType>

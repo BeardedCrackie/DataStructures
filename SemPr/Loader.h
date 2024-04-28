@@ -14,8 +14,8 @@ class Loader
 {
 public:
 	void load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSequence);
-	void loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, KWayExplicitHierarchy<NetworkRoute*, 256>& networkHierarchy);
-	//void printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkRoute*>& networkHierarchy);
+	void loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
+	void printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
 };
 
 
@@ -55,8 +55,9 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 }
 
 
-void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, KWayExplicitHierarchy<NetworkRoute*, 256>& networkHierarchy)
+void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy)
 {
+	/*
 	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
 		NetworkRoute* route = *current;
 		auto currNode = networkHierarchy.accessRoot();
@@ -64,58 +65,74 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 		//networkHierarchy.emplaceSon(*currNode, 4); //todo tu to pada pri 4 synovi
 
 		
-		std::cout << "hierarchy: ";
+		//std::cout << "hierarchy: ";
 		for (size_t octet = 0; octet < 4; ++octet) {
 			octetValue = route->getOctet(octet);
-			std::cout << octetValue << ".";
+			//std::cout << octetValue << ".";
 			if (!networkHierarchy.hasNthSon(*currNode, octetValue)) {
-				/*
-				for (size_t i = 0; i < octetValue; i++)
-				{
-					if (!networkHierarchy.hasNthSon(*currNode, i)) {
-						networkHierarchy.emplaceSon(*currNode, i);
-					}
-				}
-				*/
 				networkHierarchy.emplaceSon(*currNode, octetValue); //todo tu to pada pri 4 synovi
+				//networkHierarchy.changeSon(*currNode, octetValue, nullptr); //todo tu to pada pri 4 synovi
 			}
 			currNode = networkHierarchy.
 				accessSon(*currNode, octetValue);
 		}
-		std::cout << std::endl;
-		route->printRoute();
+		//std::cout << std::endl;
+		//route->printRoute();
 		currNode->data_ = route;
+		*/
+
+	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
+		NetworkRoute* route = *current;
+		auto currNode = networkHierarchy.accessRoot();
+		size_t octetValue = 0;
+		//networkHierarchy.emplaceSon(*currNode, 4); //todo tu to pada pri 4 synovi
+
+
+		//std::cout << "hierarchy: ";
+		for (size_t octet = 0; octet < 4; ++octet) {
+			octetValue = route->getOctet(octet);
+
+			bool found = false;
+			for (auto son : *currNode->sons_) {
+				if (son->data_.octetValue == octetValue) {
+					found = true;
+					currNode = son;
+					break;
+				}
+			}
+
+			if (!found) {
+				currNode = &networkHierarchy.emplaceSon(*currNode, networkHierarchy.degree(*currNode));
+				currNode->data_.octetValue = octetValue;
+				//std::cout << "creating node: " << octetValue << " in " << octet << ".th octet" << std::endl;
+			}
+
+		}
+		currNode->data_.route = route;
+		//std::cout << "adding route: ";
+		//route->printRoute();
 	}
+	std::cout << "hierarchy size: " << networkHierarchy.size() << std::endl;
+
 }
 
-/*
-void Loader::printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkRoute*>& networkHierarchy) {
+
+void Loader::printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy) {
 	for (auto current = networkHierarchy.begin(); current != networkHierarchy.end(); ++current) {
 
-		NetworkRoute* route = *current;
-		
-
-		MultiWayExplicitHierarchy node = *current;
-		*networkHierarchy.level();
+		NetworkHierarchyBlock route = *current;
 
 		auto currNode = networkHierarchy.accessRoot();
 		size_t octetValue = 0;
 
 		std::cout << "hierarchy: ";
 		for (size_t octet = 0; octet < 4; ++octet) {
-			octetValue = route->getOctet(octet);
-			std::cout << octetValue << ".";
-			if (!networkHierarchy.hasNthSon(*currNode, octetValue)) {
-				networkHierarchy.emplaceSon(*currNode, octetValue); //todo tu to pada pri 4 synovi
+			if (currNode->data_.route != nullptr) {
+				currNode->data_.route->printRoute();
 			}
-			currNode = networkHierarchy.accessSon(*currNode, octetValue);
 		}
-		std::cout << std::endl;
-		route->printRoute();
-		currNode->data_ = route;
-
 	}
 }
-*/
+
 
 

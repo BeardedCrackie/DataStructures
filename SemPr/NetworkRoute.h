@@ -166,3 +166,18 @@ size_t NetworkRoute::getOctet(size_t octetNumber)
 	}
 	return octetValue;
 }
+
+struct NetworkHierarchyBlock
+{
+	bool operator==(const NetworkHierarchyBlock& other) const
+	{
+		return octetValue == other.octetValue && route == other.route;
+	}
+
+	bool operator!=(const NetworkHierarchyBlock& other) const
+	{
+		return !(*this == other);
+	}
+	size_t octetValue;
+	NetworkRoute* route = nullptr;
+};
