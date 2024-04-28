@@ -170,14 +170,42 @@ void ConsoleApp::Start() {
 
 	level2->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
-			std::cout << "type ip address in format X.X.X.X" << std::endl;
+			std::cout << "\ntype ip address in format X.X.X.X" << std::endl;
 			std::string ipAddr;
 			std::cin >> ipAddr;
-			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
+			std::cout << std::endl;
 
-			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				std::bitset<32> parent = rt->getNetworkAddress();
-				for (size_t i = 0; i < rt->getPrefix(); i++)
+			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
+			
+			auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+
+			for (auto networkBlock = node; networkBlock != networkHierarchy->end(); ++networkBlock) {
+				NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*networkBlock);
+				if (network.route != nullptr) {
+					std::bitset<32> parent = network.route->getNetworkAddress();
+					bool found = true;
+					for (size_t i = 0; i < network.route->getPrefix(); i++)
+					{
+						if (parent[31 - i] != compareRt[31 - i]) {
+							found = false;
+						}
+					}
+					if (found) {
+						network.route->printRoute();
+					}
+				}
+			};
+
+			/*
+			auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+
+			AlgorithmProcessor algpHierrchy = AlgorithmProcessor<NetworkRoute*>();
+			algpHierrchy.processHierarchy(node, networkHierarchy->end(), [&](NetworkHierarchyBlock netBlock) {
+				if (node != nullptr && netBlock.route == nullptr) {
+					return false;
+				}
+				std::bitset<32> parent = netBlock.route->getNetworkAddress();
+				for (size_t i = 0; i < netBlock.route->getPrefix(); i++)
 				{
 					if (parent[31 - i] != compareRt[31 - i]) {
 						return false;
@@ -185,25 +213,31 @@ void ConsoleApp::Start() {
 				}
 				return true;
 				});
+			algpHierrchy.printRoutes();
+			*/
+
 		}));
 
 	level2->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
-			std::cout << "type lower ttl boundary" << std::endl;
+			std::cout << "\ntype lower ttl boundary" << std::endl;
 			std::string lower;
 			std::cin >> lower;
-			std::cout << "type upper ttl boundary" << std::endl;
+			std::cout << "\ntype upper ttl boundary" << std::endl;
 			std::string upper;
 			std::cin >> upper;
+			std::cout << std::endl;
 			int lowerBorder = stoi(lower);
 			int higherBorder = stoi(upper);
 
-			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				if (rt->getTtl() >= lowerBorder && rt->getTtl() <= higherBorder) {
-					return true;
+			auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+
+			for (auto networkBlock = node; networkBlock != networkHierarchy->end(); ++networkBlock) {
+				NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*networkBlock);
+				if (network.route != nullptr && network.route->getTtl() >= lowerBorder && network.route->getTtl() <= higherBorder) {
+					network.route->printRoute();
 				}
-				return false;
-				});
+			}
 		}));
 
 	// ======== flush network ========

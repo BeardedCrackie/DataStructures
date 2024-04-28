@@ -14,6 +14,8 @@ public:
     ~AlgorithmProcessor();
     template<typename Iterator>
     ImplicitSequence<NetworkRoute*>* processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
+    template<typename Iterator>
+    ImplicitSequence<NetworkRoute*>* processHierarchy(Iterator begin, Iterator end, std::function<boolean(NetworkHierarchyBlock&)> processFunction);
     void printRoutes();
     void flush();
 private:
@@ -47,12 +49,33 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable
     return networkRoutes;
 }
 
+
+template<typename T>
+template<typename Iterator>
+inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processHierarchy(Iterator begin, Iterator end, std::function<boolean(NetworkHierarchyBlock&)> processFunction)
+{
+    for (auto current = begin; current != end && current != nullptr; ++current) {
+        NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*current);
+        if (network.octetValue < 256 && network.route != nullptr && processFunction(*current))
+        {
+            networkRoutes->insertLast().data_ =network.route;
+        }
+        ++current;
+    }
+    return networkRoutes;
+}
+
 template<typename T>
 inline void AlgorithmProcessor<T>::printRoutes()
 {
-    for (auto current = networkRoutes->begin(); current != networkRoutes->end(); ++current) {
-        NetworkRoute* rt = *current;
-        rt->printRoute();
+    if (networkRoutes->size() > 0) {
+        for (auto current = networkRoutes->begin(); current != networkRoutes->end(); ++current) {
+            NetworkRoute* rt = *current;
+            rt->printRoute();
+        }
+    }
+    else {
+        std::cout << "List is Empty" << std::endl;
     }
 }
 
