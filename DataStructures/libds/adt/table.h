@@ -357,9 +357,12 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     bool SequenceTable<K, T, SequenceType>::tryFind(const K& key, T*& data) const
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        BlockType* block = this->findBlockWithKey(key);
+        if (block == nullptr) {
+            return false;
+        }
+        data = block->data_.data_;
+        return true;
     }
 
     template <typename K, typename T, typename SequenceType>
@@ -385,9 +388,9 @@ namespace ds::adt {
     template<typename K, typename T, typename SequenceType>
     typename UnsortedSequenceTable<K, T, SequenceType>::BlockType* UnsortedSequenceTable<K, T, SequenceType>::findBlockWithKey(const K& key) const
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        return this->getSequence()->findBlockWithproperty([&key](BlockType* key) {
+            return block->data_.key_ == key;
+            });
     }
 
     //----------
@@ -395,17 +398,28 @@ namespace ds::adt {
     template<typename K, typename T>
     void UnsortedImplicitSequenceTable<K, T>::insert(const K& key, T data)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->contains(key)) {
+            throw std::logic_error("duplicate key");
+        }
+        TableItem<K, T>& item = this->getSequence()->insertLast().data_;
+        item.data_ = data;
+        item.key_ = key;
     }
 
     template<typename K, typename T>
     T UnsortedImplicitSequenceTable<K, T>::remove(const K& key)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        BlockType* block = this->findlockWithKey(key);
+        if (block == nullptr) {
+            throw std::logic_error("key not found");
+        }
+        T result = block->data_.data;
+        BlockType* lastBlock = this->getSequence()->accessLast();
+        if (block != lastBlock) {
+            std::swap(block->data_, lastBlock->data);
+        }
+        this->getSequence()->removeLast();
+        return result;
     }
 
     template<typename K, typename T>
@@ -429,9 +443,17 @@ namespace ds::adt {
     template<typename K, typename T>
     T UnsortedExplicitSequenceTable<K, T>::remove(const K& key)
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        BlockType* block = this->findlockWithKey(key);
+        if (block == nullptr) {
+            throw std::logic_error("key not found");
+        }
+        T result = block->data_.data;
+        BlockType* firstBlock = this->getSequence()->accessFirst();
+        if (block != firstBlock) {
+            std::swap(block->data_, firstBlock->data);
+        }
+        this->getSequence()->removeFirst();
+        return result;
     }
 
     template<typename K, typename T>
@@ -480,9 +502,26 @@ namespace ds::adt {
     template<typename K, typename T>
     bool SortedSequenceTable<K, T>::tryFindBlockWithKey(const K& key, size_t firstIndex, size_t lastIndex, BlockType*& lastBlock) const
     {
-        // TODO 10
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->isEmpty()) {
+            lastBlock = nullptr;
+            return false;
+        }
+        size_t midIndex = firstIndex;
+        while (firstIndex < lastIndex) {
+            midIndex = firstIndex + (lastIndex - firstIndex) / 2;
+            lastBlock = this->getSequence()->accss(midIndex);
+            if (lastBlock->data_.key_ < key) {
+                firstIndex = midIndex + 1;
+            }
+            else if (lastBlock->data_.key_ > key) {
+                lastIndex = midIndex;
+            } else {
+                break;
+            }
+        }
+        lastBlock = this->getSequence()->access(midIndex);
+
+        return lastBlock->data_.key_ == key;
     }
 
     //----------
@@ -567,9 +606,21 @@ namespace ds::adt {
     template <typename K, typename T>
     void HashTable<K, T>::insert(const K& key, T data)
     {
-        // TODO 11
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        TableItem<K, T>* item = nullptr;
+        if (this->isEmpty()) {
+            item = &this->getSequence()->insertFirst()->data_;
+        }
+        else {
+            BlockType* block = nullptr;
+            if (this->tryFindBlockWithKey(key, 0, this->size(), block)) {
+                throw std::logic_error("Duplicate key!");
+            }
+            item = key > block_->data_.key_
+                ? &this->getSequence()->insertAfter(*block).data_
+                : &this->getSequence()->insertAfter(*block).data_;
+        }
+        item->data_ = data;
+        item->key_ = key;
     }
 
     template <typename K, typename T>
