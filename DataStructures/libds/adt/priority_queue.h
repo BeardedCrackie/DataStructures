@@ -290,9 +290,15 @@ namespace ds::adt {
     template<typename P, typename T, typename SequenceType>
     T SortedSequencePriorityQueue<P, T, SequenceType>::pop()
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
+        }
+
+        size_t index = this->indexOfHighestPriorityBlock();
+        T result = this->getSequence()->access(index)->data_.data_;
+        this->getSequence()->remove(index);
+        return result;
     }
 
     template<typename P, typename T>
@@ -341,33 +347,61 @@ namespace ds::adt {
     template<typename P, typename T>
     void SortedImplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        PQItem<P, T>* queueData = nullptr;
+        if (this->isEmpty() || priority <= this->getSequence()->accessLast()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertLast().data_;
+        }
+        else if (priority >= this->getSequence()->accessFirst()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertFirst().data_;
+        }
+        else
+        {
+            queueData = &this->getSequence()->insertBefore(*this->getSequence()->findBlockWithProperty(
+                [&priority](SequenceBlockType* block)->bool {
+                    return block->data_.priority_ <= priority;
+                })).data_;
+        }
+        queueData->priority_ = priority;
+        queueData->data_ = data;
     }
 
     template<typename P, typename T>
     size_t SortedImplicitSequencePriorityQueue<P, T>::indexOfHighestPriorityBlock() const
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        return this->size() - 1;
     }
 
     template<typename P, typename T>
     void SortedExplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        PQItem<P, T>* queueData = nullptr;
+        if (this->isEmpty() || priority <= this->getSequence()->accessFirst()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertFirst().data_;
+        }
+        else if (priority >= this->getSequence()->accessLast()->data_.priority_)
+        {
+            queueData = &this->getSequence()->insertLast().data_;
+        }
+        else
+        {
+            SequenceBlockType* prevBlock = this->getSequence()->findPreviousToBlockWithProperty(
+                [priority](SequenceBlockType* block) -> bool
+                {
+                    return block->data_.priority_ >= priority;
+                });
+            queueData = &this->getSequence()->insertAfter(*prevBlock).data_;
+        }
+        queueData->priority_ = priority;
+        queueData->data_ = data;
     }
 
     template<typename P, typename T>
     size_t SortedExplicitSequencePriorityQueue<P, T>::indexOfHighestPriorityBlock() const
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        return 0;
     }
 
     template<typename P, typename T>
@@ -478,20 +512,18 @@ namespace ds::adt {
     template<typename P, typename T>
     void BinaryHeap<P, T>::push(P priority, T data)
     {
-        PriorityQueueItem<P, T>& item = this->getHierarchy()->insertLastLeaf().data_;
-        item.data_ = data;
-        item.priority_ = priority;
-
-        HierarchyBlockType* current = this->getHierarchy()->accessLastLeaf();
-        HierarchyBlockType* parent = this->getHierarchy()->accessParent(*current);
-        
-        /* todo prerobit, na cviceni nefungovalo
-        while (parent != nullptr && current->data_ .priority < parent->data_.priority ) {
-            std::swap(current->data_, parent->data_);
-            current = parent;
-            parent = this->getHierarchy()->accessParent(*current);
+        PQItem<P, T>& queueData = this->getHierarchy()->insertLastLeaf().data_;
+        queueData.priority_ = priority;
+        queueData.data_ = data;
+        HierarchyBlockType* currentBlock = this->getHierarchy()->accessLastLeaf();
+        HierarchyBlockType* blockParent = this->getHierarchy()->accessParent(*currentBlock);
+        while (blockParent != nullptr && currentBlock->data_.priority_ < blockParent->data_.priority_)
+        {
+            using std::swap;
+            swap(currentBlock->data_, blockParent->data_);
+            currentBlock = blockParent;
+            blockParent = this->getHierarchy()->accessParent(*currentBlock);
         }
-        */
     }
 
     template<typename P, typename T>
@@ -505,9 +537,33 @@ namespace ds::adt {
     template<typename P, typename T>
     T BinaryHeap<P, T>::pop()
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
+        }
+        HierarchyBlockType* currentBlock = this->getHierarchy()->accessRoot();
+        T result = currentBlock->data_.data_;
+        using std::swap;
+        swap(currentBlock->data_, this->getHierarchy()->accessLastLeaf()->data_);
+        this->getHierarchy()->removeLastLeaf();
+        if (!this->isEmpty())
+        {
+            std::function<HierarchyBlockType* (HierarchyBlockType*)> findSonWithHigherPriority;
+            findSonWithHigherPriority = [this](HierarchyBlockType* blockParent)
+                {
+                    HierarchyBlockType* leftSon = this->getHierarchy()->accessLeftSon(*blockParent);
+                    HierarchyBlockType* rightSon = this->getHierarchy()->accessRightSon(*blockParent);
+                    return rightSon == nullptr || leftSon->data_.priority_ < rightSon->data_.priority_ ? leftSon : rightSon;
+                };
+            HierarchyBlockType* sonBlock = findSonWithHigherPriority(currentBlock);
+            while (sonBlock != nullptr && currentBlock->data_.priority_ > sonBlock->data_.priority_)
+            {
+                swap(currentBlock->data_, sonBlock->data_);
+                currentBlock = sonBlock;
+                sonBlock = findSonWithHigherPriority(currentBlock);
+            }
+        }
+        return result;
     }
 
     template<typename P, typename T>
