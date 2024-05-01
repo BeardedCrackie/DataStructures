@@ -44,16 +44,16 @@ ConsoleApp::~ConsoleApp() {
 void ConsoleApp::Start() {
 
 	// ========== initialization ==========
-	AlgorithmProcessor algp = AlgorithmProcessor<NetworkRoute*>();
+	SimpleLogger::log(LOG_INFO, "Console App init");
+	AlgorithmProcessor<NetworkRoute*> algp;
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
 	Loader().loadNetworkHierarchy(*networkRoutes, *networkHierarchy);
 
 	// ========== main menu ==========
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
 		{
-			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				rt->printRoute();
-				return true;
+			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+				return Predicate::print(rt);
 				});
 		}));
 
@@ -92,16 +92,17 @@ void ConsoleApp::Start() {
 			int lowerBorder = stoi(lower);
 			int higherBorder = stoi(upper);
 
-			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				if (rt->getTtl() >= lowerBorder && rt->getTtl() <= higherBorder) {
-					return true;
-				}
-				return false;
+			AlgorithmProcessor<NetworkRoute*> algp;
+			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
 				});
 		}));
-	level1->AddItem(new MenuActionItem("print routes", [&]()
-		{
-			algp.printRoutes();
+
+	level1->AddItem(new MenuActionItem("print routes", [&]() {
+		AlgorithmProcessor<NetworkRoute*> algp;
+		algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			return Predicate::print(rt);
+			});
 		}));
 	level1->AddItem(new MenuActionItem("flush algorithm", [&]()
 		{
@@ -117,7 +118,22 @@ void ConsoleApp::Start() {
 		//static_cast<MultiWayExplicitHierarchyBlock<UzemnaJednotka*>*>
 
 		//static_cast<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>*>(&currentNode);
-		auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+		//auto node = ds::amt::Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+			//MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+
+		//networkHierarchy->beginPre
+		//auto node = static_cast<Iterator>(*currentNode);
+
+		//networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
+
+		AlgorithmProcessor algpHierarchy = AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>();
+		auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+		auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
+
+		algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+			return Predicate::print(rt);
+			});
+		//algp.printRoutes();
 
 		for (auto networkBlock = node; networkBlock != networkHierarchy->end(); ++networkBlock) {
 			NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*networkBlock);
