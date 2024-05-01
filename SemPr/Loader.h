@@ -3,6 +3,7 @@
 #include <libds/heap_monitor.h>
 #include <libds/amt/implicit_sequence.h>
 #include <libds/amt/explicit_hierarchy.h>
+#include <libds/adt/table.h>
 #include "NetworkRoute.h"
 #include <iostream>
 #include <fstream>
@@ -10,12 +11,15 @@
 #include "simpleLogger.h"
 
 using namespace ds::amt;
+using namespace ds::adt;
+
 
 class Loader
 {
 public:
 	void load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSequence);
 	void loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
+	void loadNetworkTable(ImplicitSequence<NetworkRoute*>& routeSequence, Table<std::string, ImplicitSequence<NetworkRoute*>>& networkTable);
 };
 
 
@@ -119,24 +123,19 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 	SimpleLogger::log(LOG_INFO, "Hierarchy loaded with size: " + std::to_string(networkHierarchy.size()));
 }
 
-/*
-void Loader::printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy) {
-	for (auto current = networkHierarchy.begin(); current != networkHierarchy.end(); ++current) {
 
-		NetworkHierarchyBlock route = *current;
-
-		auto currNode = networkHierarchy.accessRoot();
-		size_t octetValue = 0;
-
-		std::cout << "hierarchy: ";
-		for (size_t octet = 0; octet < 4; ++octet) {
-			if (currNode->data_.route != nullptr) {
-				currNode->data_.route->printRoute();
-			}
+inline void Loader::loadNetworkTable(ImplicitSequence<NetworkRoute*>& routeSequence, Table<std::string, ImplicitSequence<NetworkRoute*>>& networkTable)
+{
+	NetworkRoute* route = nullptr;
+	std::string nextHop = "";
+	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
+		route = *current;
+		nextHop = route->getNextHop().to_string();
+		//ImplicitSequence<NetworkRoute*>* sequence = &networkTable.find(nextHop);
+		if (!networkTable.contains(nextHop)) {
+			networkTable.insert(nextHop, ImplicitSequence<NetworkRoute*>());
 		}
+		networkTable.find(nextHop).insertLast().data_= route;
 	}
 }
-*/
-
-
 

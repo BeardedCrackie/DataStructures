@@ -9,6 +9,7 @@
 
 #include <libds/amt/explicit_hierarchy.h>
 #include <libds/amt/hierarchy.h>
+#include <libds/adt/table.h>
 
 class ConsoleApp {
 private:
@@ -16,6 +17,8 @@ private:
 	ImplicitSequence<NetworkRoute*>* networkRoutes;
 	MultiWayExplicitHierarchy<NetworkHierarchyBlock>* networkHierarchy;
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
+	Table<std::string, ImplicitSequence<NetworkRoute*>>* networkTable;
+
 public:
 	ConsoleApp();
 	~ConsoleApp();
@@ -27,6 +30,7 @@ ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
 	currentNode = networkHierarchy->accessRoot();
+	networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkRoute*>>();
 }
 
 ConsoleApp::~ConsoleApp() {
@@ -46,7 +50,6 @@ void ConsoleApp::Start() {
 	SimpleLogger::log(LOG_INFO, "Console App init");
 	AlgorithmProcessor<NetworkRoute*> algp;
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
-	Loader().loadNetworkHierarchy(*networkRoutes, *networkHierarchy);
 
 	// ========== main menu ==========
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
@@ -108,6 +111,7 @@ void ConsoleApp::Start() {
 		}));
 
 	// ========== level 2 ==========
+	Loader().loadNetworkHierarchy(*networkRoutes, *networkHierarchy);
 	CliMenu* level2 = new CliMenu("2 level - hierarchy");
 	main_menu.AddItem(level2);
 
@@ -203,20 +207,24 @@ void ConsoleApp::Start() {
 
 
 	// ========== level 3 ==========
+	Loader().loadNetworkTable(*networkRoutes, *networkTable);
+
 	CliMenu* level3 = new CliMenu("3 level - tables");
 	main_menu.AddItem(level3);
 
-	level3->AddItem(new MenuActionItem("print hierarchy", [&]() {
+	level3->AddItem(new MenuActionItem("find nextHop", [&]() {
+		std::cout << "\nnext hop address" << std::endl;
+		std::string nextHop;
+		std::cin >> nextHop;
 
-		AlgorithmProcessor algpHierarchy = AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>();
-		auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-		auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
+		ImplicitSequence<NetworkRoute*>* rtSeq = nullptr;
 
-		algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
-			return Predicate::print(rt);
-			});
-
-		}));
+		if (networkTable->tryFind(nextHop, rtSeq)) {
+			for (NetworkRoute* rt : *rtSeq) {
+				rt->printRoute();
+			}
+		}
+	}));
 
 
 	// ======== flush network ========
