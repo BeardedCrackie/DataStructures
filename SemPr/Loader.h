@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "simpleLogger.h"
 
 using namespace ds::amt;
 
@@ -20,9 +21,10 @@ public:
 
 
 void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSequence) {
+	SimpleLogger::log(LOG_DEBUG, "Start sequence loading");
 	std::fstream inputFile(filePath);
 	if (!inputFile.is_open()) {
-		std::cout << "File is not present!" << std::endl;
+		SimpleLogger::log(LOG_ERROR,"File is not present!");
 		return;
 	}
 	std::string line;
@@ -52,11 +54,14 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 	}
 	inputFile.close();
 	inputFile.clear();
+	SimpleLogger::log(LOG_INFO, "Sequence loaded with size: " + std::to_string(routeSequence.size()));
 }
 
 
 void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy)
 {
+	SimpleLogger::log(LOG_DEBUG, "Start hierarchy loading");
+
 	/*
 	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
 		NetworkRoute* route = *current;
@@ -112,8 +117,7 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 		//std::cout << "adding route: ";
 		//route->printRoute();
 	}
-	std::cout << "hierarchy size: " << networkHierarchy.size() << std::endl;
-
+	SimpleLogger::log(LOG_INFO, "Hierarchy loaded with size: " + std::to_string(networkHierarchy.size()));
 }
 
 

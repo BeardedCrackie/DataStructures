@@ -5,6 +5,7 @@
 #include "NetworkRoute.h"
 #include "Algorithm.h"
 #include "Loader.h"
+#include "simpleLogger.h"
 
 #include <libds/amt/explicit_hierarchy.h>
 #include <libds/amt/hierarchy.h>

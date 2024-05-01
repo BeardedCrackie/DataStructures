@@ -39,6 +39,8 @@ template<typename T>
 template<typename Iterator>
 inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
+    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::process");
+
     for (auto current = begin; current != end; ++current) {
         if (processFunction(*current))
         {
@@ -54,7 +56,7 @@ template<typename T>
 template<typename Iterator>
 inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processHierarchy(Iterator begin, Iterator end, std::function<boolean(NetworkHierarchyBlock&)> processFunction)
 {
-    for (auto current = begin; current != end && current != nullptr; ++current) {
+    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process");
         NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*current);
         if (network.octetValue < 256 && network.route != nullptr && processFunction(*current))
         {
@@ -82,6 +84,7 @@ inline void AlgorithmProcessor<T>::printRoutes()
 template<typename T>
 inline void AlgorithmProcessor<T>::flush()
 {
+    SimpleLogger::log(LOG_DEBUG, "called: AlgorithmProcessor<T>::flush");
     networkRoutes->clear();
 }
 
