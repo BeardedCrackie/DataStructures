@@ -42,7 +42,7 @@ ConsoleApp::~ConsoleApp() {
 }
 
 void ConsoleApp::Start() {
-
+	
 	// ========== initialization ==========
 	SimpleLogger::log(LOG_INFO, "Console App init");
 	AlgorithmProcessor<NetworkRoute*> algp;
@@ -55,6 +55,7 @@ void ConsoleApp::Start() {
 			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				return Predicate::print(rt);
 				});
+			//algp.printRoutes(); //netreba, zbytocne ide 2x
 		}));
 
 
@@ -64,6 +65,7 @@ void ConsoleApp::Start() {
 	
 	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
+			AlgorithmProcessor<NetworkRoute*> algp;
 			std::cout << "type ip address in format X.X.X.X" << std::endl;
 			std::string ipAddr;
 			std::cin >> ipAddr;
@@ -72,10 +74,12 @@ void ConsoleApp::Start() {
 			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				return Predicate::matchWithAddress(compareRt, rt, true);
 				});
+			//algp.printRoutes();
 		}));
 	
 	level1->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
+			
 			std::cout << "type lower ttl boundary" << std::endl;
 			std::string lower;
 			std::cin >> lower;
@@ -89,6 +93,7 @@ void ConsoleApp::Start() {
 			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
 				});
+			//algp.printRoutes();
 		}));
 
 	level1->AddItem(new MenuActionItem("print routes", [&]() {
@@ -97,6 +102,7 @@ void ConsoleApp::Start() {
 			return Predicate::print(rt);
 			});
 		}));
+
 	level1->AddItem(new MenuActionItem("flush algorithm", [&]()
 		{
 			algp.flush();
@@ -128,12 +134,7 @@ void ConsoleApp::Start() {
 			});
 		//algp.printRoutes();
 
-		for (auto networkBlock = node; networkBlock != networkHierarchy->end(); ++networkBlock) {
-			NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*networkBlock);
-			if (network.route != nullptr) {
-				network.route->printRoute();
-			}
-		}}));
+	}));
 
 	level2->AddItem(new MenuActionItem("iterator up", [&]() {
 		//todo current is not root if (currentNode != networkHierarchy->accessRoot())

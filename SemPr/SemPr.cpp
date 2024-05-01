@@ -7,7 +7,6 @@
 #include "ConsoleApp.h"
 #include "simpleLogger.h"
 
-
 using namespace ds::amt;
 
 int main()

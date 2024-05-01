@@ -35,5 +35,8 @@
     <ClInclude Include="CliMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="simpleLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
