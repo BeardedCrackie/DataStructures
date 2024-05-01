@@ -26,7 +26,6 @@ ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	networkRoutes = new ImplicitSequence<NetworkRoute*>();
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
-	//currentNode = networkHierarchy->begin();
 	currentNode = networkHierarchy->accessRoot();
 }
 
@@ -113,17 +112,6 @@ void ConsoleApp::Start() {
 	main_menu.AddItem(level2);
 
 	level2->AddItem(new MenuActionItem("print hierarchy", [&]() {
-		//auto iterator = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkRoute*>>::PreOrderHierarchyIterator(networkHierarchy, &currentNode);
-		//static_cast<MultiWayExplicitHierarchyBlock<UzemnaJednotka*>*>
-
-		//static_cast<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>*>(&currentNode);
-		//auto node = ds::amt::Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-			//MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-
-		//networkHierarchy->beginPre
-		//auto node = static_cast<Iterator>(*currentNode);
-
-		//networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 
 		AlgorithmProcessor algpHierarchy = AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>();
 		auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
@@ -132,12 +120,11 @@ void ConsoleApp::Start() {
 		algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
 			return Predicate::print(rt);
 			});
-		//algp.printRoutes();
 
 	}));
 
 	level2->AddItem(new MenuActionItem("iterator up", [&]() {
-		//todo current is not root if (currentNode != networkHierarchy->accessRoot())
+
 		if (networkHierarchy->accessParent(*currentNode) != nullptr) {
 			currentNode = networkHierarchy->accessParent(*currentNode);
 		}
@@ -172,10 +159,7 @@ void ConsoleApp::Start() {
 		
 
 	level2->AddItem(new MenuActionItem("reset iterator", [&]() {
-
 		currentNode = networkHierarchy->accessRoot();
-
-		//currentNode = Hierarchy<KWayExplicitHierarchyBlock<NetworkRoute*, 256>>::PreOrderHierarchyIterator(networkHierarchy, networkHierarchy->begin());
 		}));
 	
 
@@ -185,48 +169,15 @@ void ConsoleApp::Start() {
 			std::string ipAddr;
 			std::cin >> ipAddr;
 			std::cout << std::endl;
-
 			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
-			
-			auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
 
-			for (auto networkBlock = node; networkBlock != networkHierarchy->end(); ++networkBlock) {
-				NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*networkBlock);
-				if (network.route != nullptr) {
-					std::bitset<32> parent = network.route->getNetworkAddress();
-					bool found = true;
-					for (size_t i = 0; i < network.route->getPrefix(); i++)
-					{
-						if (parent[31 - i] != compareRt[31 - i]) {
-							found = false;
-						}
-					}
-					if (found) {
-						network.route->printRoute();
-					}
-				}
-			};
+			AlgorithmProcessor algpHierarchy = AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>();
+			auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+			auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
 
-			/*
-			auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-
-			AlgorithmProcessor algpHierrchy = AlgorithmProcessor<NetworkRoute*>();
-			algpHierrchy.processHierarchy(node, networkHierarchy->end(), [&](NetworkHierarchyBlock netBlock) {
-				if (node != nullptr && netBlock.route == nullptr) {
-					return false;
-				}
-				std::bitset<32> parent = netBlock.route->getNetworkAddress();
-				for (size_t i = 0; i < netBlock.route->getPrefix(); i++)
-				{
-					if (parent[31 - i] != compareRt[31 - i]) {
-						return false;
-					}
-				}
-				return true;
+			algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+				return Predicate::matchWithAddress(compareRt, rt, true);
 				});
-			algpHierrchy.printRoutes();
-			*/
-
 		}));
 
 	level2->AddItem(new MenuActionItem("matchLifetime", [&]()
@@ -241,14 +192,13 @@ void ConsoleApp::Start() {
 			int lowerBorder = stoi(lower);
 			int higherBorder = stoi(upper);
 
-			auto node = MultiWayExplicitHierarchy<NetworkHierarchyBlock>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+			AlgorithmProcessor algpHierarchy = AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>();
+			auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+			auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
 
-			for (auto networkBlock = node; networkBlock != networkHierarchy->end(); ++networkBlock) {
-				NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*networkBlock);
-				if (network.route != nullptr && network.route->getTtl() >= lowerBorder && network.route->getTtl() <= higherBorder) {
-					network.route->printRoute();
-				}
-			}
+			algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
+				});
 		}));
 
 	// ======== flush network ========

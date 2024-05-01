@@ -18,8 +18,6 @@ int main()
     SetConsoleCP(1250);
 
     ConsoleApp().Start();
-    //capp.Start();
-    //capp.Stop();
 	
 	//just for initHeapMonitor testing
 	//NetworkRoute* rt = new NetworkRoute();

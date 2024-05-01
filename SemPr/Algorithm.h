@@ -16,10 +16,6 @@ public:
     ~AlgorithmProcessor();
     template<typename Iterator>
     ImplicitSequence<NetworkRoute*>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
-    //template<typename Iterator>
-    //ImplicitSequence<NetworkRoute*>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*&)> processFunction);
-
-    void printRoutes();
     void flush();
 private:
     ImplicitSequence<NetworkRoute*>* networkRoutes;
@@ -49,7 +45,6 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::process(Iterator 
         {
             networkRoutes->insertLast().data_ = *current;
         }
-        //++current;
     }
     return networkRoutes;
 }
@@ -68,36 +63,10 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<MultiWayExplicitHiera
         {
             networkRoutes->insertLast().data_ = item.route;
         }
-//        ++current;
     }
     return networkRoutes;
 }
 
-/*
-template<typename T>
-inline void AlgorithmProcessor<T>::printRoutes()
-{
-    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::printRoutes");
-
-    this->process(this->networkRoutes->begin(), this->networkRoutes->end(), [](NetworkRoute* rt) {
-        rt->printRoute();
-        return true;
-        });
-
-    
-    /*
-    if (networkRoutes->size() > 0) {
-        for (auto current = networkRoutes->begin(); current != networkRoutes->end(); ++current) {
-            T* rt = *current;
-            rt->printRoute();
-        }
-    }
-    else {
-        std::cout << "List is Empty" << std::endl;
-    }*/
-/*
-}
-*/
 
 template<typename T>
 inline void AlgorithmProcessor<T>::flush()
