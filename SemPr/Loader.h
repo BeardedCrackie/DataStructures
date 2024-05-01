@@ -3,7 +3,7 @@
 #include <libds/heap_monitor.h>
 #include <libds/amt/implicit_sequence.h>
 #include <libds/amt/explicit_hierarchy.h>
-#include <libds/adt/table.h>
+//#include <libds/adt/table.h>
 #include "NetworkRoute.h"
 #include <iostream>
 #include <fstream>
@@ -11,19 +11,19 @@
 #include "simpleLogger.h"
 
 using namespace ds::amt;
-using namespace ds::adt;
+//using namespace ds::adt;
 
 
 class Loader
 {
 public:
-	void load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSequence);
-	void loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
-	void loadNetworkTable(ImplicitSequence<NetworkRoute*>& routeSequence, Table<std::string, ImplicitSequence<NetworkRoute*>>& networkTable);
+	void load(std::string filePath, ImplicitSequence<NetworkBlock>& routeSequence);
+	void loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
+	//void loadNetworkTable(ImplicitSequence<NetworkRoute*>& routeSequence, Table<std::string, ImplicitSequence<NetworkRoute*>>& networkTable);
 };
 
 
-void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSequence) {
+void Loader::load(std::string filePath, ImplicitSequence<NetworkBlock>& routeSequence) {
 	SimpleLogger::log(LOG_DEBUG, "Start sequence loading");
 	std::fstream inputFile(filePath);
 	if (!inputFile.is_open()) {
@@ -53,7 +53,7 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 		newRoute->setNextHop(value.substr(3));
 		getline(loadedStream, value, ';'); //time in string
 		newRoute->setTtl(value);
-		routeSequence.insertLast().data_ = newRoute;
+		routeSequence.insertLast().data_.route = newRoute;
 	}
 	inputFile.close();
 	inputFile.clear();
@@ -61,7 +61,7 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSe
 }
 
 
-void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy)
+void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy)
 {
 	SimpleLogger::log(LOG_DEBUG, "Start hierarchy loading");
 
@@ -90,7 +90,7 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 		*/
 
 	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
-		NetworkRoute* route = *current;
+		NetworkBlock rtBlock = *current;
 		auto currNode = networkHierarchy.accessRoot();
 		size_t octetValue = 0;
 		//networkHierarchy.emplaceSon(*currNode, 4); //todo tu to pada pri 4 synovi
@@ -98,7 +98,7 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 
 		//std::cout << "hierarchy: ";
 		for (size_t octet = 0; octet < 4; ++octet) {
-			octetValue = route->getOctet(octet);
+			octetValue = rtBlock.route->getOctet(octet);
 
 			bool found = false;
 			for (auto son : *currNode->sons_) {
@@ -116,14 +116,14 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 			}
 
 		}
-		currNode->data_.route = route;
+		currNode->data_.route = rtBlock.route;
 		//std::cout << "adding route: ";
 		//route->printRoute();
 	}
 	SimpleLogger::log(LOG_INFO, "Hierarchy loaded with size: " + std::to_string(networkHierarchy.size()));
 }
 
-
+/*
 inline void Loader::loadNetworkTable(ImplicitSequence<NetworkRoute*>& routeSequence, Table<std::string, ImplicitSequence<NetworkRoute*>>& networkTable)
 {
 	NetworkRoute* route = nullptr;
@@ -138,4 +138,5 @@ inline void Loader::loadNetworkTable(ImplicitSequence<NetworkRoute*>& routeSeque
 		networkTable.find(nextHop).insertLast().data_= route;
 	}
 }
+*/
 

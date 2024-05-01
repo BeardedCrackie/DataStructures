@@ -14,17 +14,17 @@ class AlgorithmProcessor
 public:
     AlgorithmProcessor();
     ~AlgorithmProcessor();
-    template<typename Iterator>
-    ImplicitSequence<NetworkRoute*>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
+    template<typename Iterator> 
+    ImplicitSequence<NetworkBlock>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
     void flush();
 private:
-    ImplicitSequence<NetworkRoute*>* networkRoutes;
+    ImplicitSequence<NetworkBlock>* networkRoutes;
 };
 
 template<typename T>
 inline AlgorithmProcessor<T>::AlgorithmProcessor()
 {
-    networkRoutes = new ImplicitSequence<NetworkRoute*>();
+    networkRoutes = new ImplicitSequence<NetworkBlock>();
 }
 
 template<typename T>
@@ -34,34 +34,18 @@ inline AlgorithmProcessor<T>::~AlgorithmProcessor()
     networkRoutes = nullptr;
 }
 
+
 template<typename T>
 template<typename Iterator>
-inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
-{
-    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::process");
-
-    for (auto current = begin; current != end; ++current) {
-        if (processFunction(*current))
-        {
-            networkRoutes->insertLast().data_ = *current;
-        }
-    }
-    return networkRoutes;
-}
-
-template<>
-template<typename Iterator>
-inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
+inline ImplicitSequence<NetworkBlock>* AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
     SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process");
 
-    NetworkHierarchyBlock item;
-
     for (auto current = begin; current != end; ++current) {
-        item = *current;
+        NetworkBlock item = *current;
         if (item.route != nullptr && processFunction(item.route))
         {
-            networkRoutes->insertLast().data_ = item.route;
+            networkRoutes->insertLast().data_.route = item.route;
         }
     }
     return networkRoutes;

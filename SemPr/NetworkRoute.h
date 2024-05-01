@@ -7,7 +7,6 @@
 #include <sstream>
 #include <libds/heap_monitor.h>
 
-
 //using namespace std;
 
 class NetworkRoute
@@ -180,17 +179,29 @@ size_t NetworkRoute::getOctet(size_t octetNumber)
 	return octetValue;
 }
 
-struct NetworkHierarchyBlock
+
+struct NetworkBlock
+{
+	bool operator==(const NetworkBlock& other) const
+	{
+		return route == other.route;
+	}
+
+	bool operator!=(const NetworkBlock& other) const
+	{
+		return !(*this == other);
+	}
+
+	NetworkRoute* route = nullptr;
+};
+
+
+struct NetworkHierarchyBlock : NetworkBlock
 {
 	bool operator==(const NetworkHierarchyBlock& other) const
 	{
 		return octetValue == other.octetValue && route == other.route;
 	}
 
-	bool operator!=(const NetworkHierarchyBlock& other) const
-	{
-		return !(*this == other);
-	}
 	size_t octetValue = 0 - 1;
-	NetworkRoute* route = nullptr;
 };
