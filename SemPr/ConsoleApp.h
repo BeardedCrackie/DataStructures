@@ -11,6 +11,9 @@
 #include <libds/amt/hierarchy.h>
 //#include <libds/adt/table.h>
 
+//typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>> HierarchyNetworkBlock;
+typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator NetworkHierarchyIterator;
+
 class ConsoleApp {
 private:
 	CliMenu main_menu;
@@ -48,13 +51,13 @@ void ConsoleApp::Start() {
 	
 	// ========== initialization ==========
 	SimpleLogger::log(LOG_INFO, "Console App init");
-	AlgorithmProcessor<NetworkBlock> algp;
+	AlgorithmProcessor algp;
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
 
 	// ========== main menu ==========
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
 		{
-			AlgorithmProcessor<NetworkBlock>().process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				return Predicate::print(rt);
 				});
 			//algp.printRoutes(); //netreba, zbytocne ide 2x
@@ -65,6 +68,12 @@ void ConsoleApp::Start() {
 	CliMenu* level1 = new CliMenu("1 level - sequence");
 	main_menu.AddItem(level1);
 	
+	level1->AddItem(new MenuActionItem("print routes", [&]() {
+		algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			return Predicate::print(rt);
+			});
+		}));
+
 	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
 			std::cout << "type ip address in format X.X.X.X" << std::endl;
@@ -72,10 +81,9 @@ void ConsoleApp::Start() {
 			std::cin >> ipAddr;
 			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 
-			AlgorithmProcessor<NetworkBlock>().process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				return Predicate::matchWithAddress(compareRt, rt, true);
 				});
-			//algp.printRoutes();
 		}));
 	
 	level1->AddItem(new MenuActionItem("matchLifetime", [&]()
@@ -89,21 +97,9 @@ void ConsoleApp::Start() {
 			int lowerBorder = stoi(lower);
 			int higherBorder = stoi(upper);
 
-			AlgorithmProcessor<NetworkBlock>().process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
 				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
 				});
-			//algp.printRoutes();
-		}));
-
-	level1->AddItem(new MenuActionItem("print routes", [&]() {
-		AlgorithmProcessor<NetworkBlock>().process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-			return Predicate::print(rt);
-			});
-		}));
-
-	level1->AddItem(new MenuActionItem("flush algorithm", [&]()
-		{
-			algp.flush();
 		}));
 
 	// ========== level 2 ==========
@@ -112,15 +108,12 @@ void ConsoleApp::Start() {
 	main_menu.AddItem(level2);
 
 	level2->AddItem(new MenuActionItem("print hierarchy", [&]() {
-
-		AlgorithmProcessor algpHierarchy = AlgorithmProcessor<NetworkHierarchyBlock>();
-		auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-		auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
-
-		algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+		algp.process(
+			NetworkHierarchyIterator(networkHierarchy, currentNode),
+			NetworkHierarchyIterator(networkHierarchy, nullptr),
+			[&](NetworkRoute* rt) {
 			return Predicate::print(rt);
 			});
-
 	}));
 
 	level2->AddItem(new MenuActionItem("iterator up", [&]() {
@@ -162,7 +155,6 @@ void ConsoleApp::Start() {
 		currentNode = networkHierarchy->accessRoot();
 		}));
 	
-
 	level2->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
 			std::cout << "\ntype ip address in format X.X.X.X" << std::endl;
@@ -171,11 +163,10 @@ void ConsoleApp::Start() {
 			std::cout << std::endl;
 			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 
-			AlgorithmProcessor algpHierarchy = AlgorithmProcessor<NetworkHierarchyBlock>();
-			auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-			auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
-
-			algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+			algp.process(
+				NetworkHierarchyIterator(networkHierarchy, currentNode),
+				NetworkHierarchyIterator(networkHierarchy, nullptr), 
+				[&](NetworkRoute* rt) {
 				return Predicate::matchWithAddress(compareRt, rt, true);
 				});
 		}));
@@ -192,11 +183,10 @@ void ConsoleApp::Start() {
 			int lowerBorder = stoi(lower);
 			int higherBorder = stoi(upper);
 
-			AlgorithmProcessor algpHierarchy = AlgorithmProcessor<NetworkHierarchyBlock>();
-			auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
-			auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
-
-			algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+			algp.process(
+				NetworkHierarchyIterator(networkHierarchy, currentNode),
+				NetworkHierarchyIterator(networkHierarchy, nullptr),
+				[&](NetworkRoute* rt) {
 				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
 				});
 		}));

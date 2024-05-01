@@ -8,7 +8,7 @@
 
 using namespace ds::amt;
 
-template<typename T>
+//template<typename T>
 class AlgorithmProcessor
 {
 public:
@@ -21,23 +21,23 @@ private:
     ImplicitSequence<NetworkBlock>* networkRoutes;
 };
 
-template<typename T>
-inline AlgorithmProcessor<T>::AlgorithmProcessor()
+//template<typename T>
+inline AlgorithmProcessor::AlgorithmProcessor()
 {
     networkRoutes = new ImplicitSequence<NetworkBlock>();
 }
 
-template<typename T>
-inline AlgorithmProcessor<T>::~AlgorithmProcessor()
+//template<typename T>
+inline AlgorithmProcessor::~AlgorithmProcessor()
 {
     delete networkRoutes;
     networkRoutes = nullptr;
 }
 
 
-template<typename T>
+////template<typename T>
 template<typename Iterator>
-inline ImplicitSequence<NetworkBlock>* AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
+inline ImplicitSequence<NetworkBlock>* AlgorithmProcessor::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
     SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process");
 
@@ -52,10 +52,10 @@ inline ImplicitSequence<NetworkBlock>* AlgorithmProcessor<T>::process(Iterator b
 }
 
 
-template<typename T>
-inline void AlgorithmProcessor<T>::flush()
+//template<typename T>
+inline void AlgorithmProcessor::flush()
 {
-    SimpleLogger::log(LOG_DEBUG, "called: AlgorithmProcessor<T>::flush");
+    SimpleLogger::log(LOG_DEBUG, "called: AlgorithmProcessor::flush");
     networkRoutes->clear();
 }
 
