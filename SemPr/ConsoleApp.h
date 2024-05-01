@@ -10,8 +10,9 @@
 #include <libds/amt/explicit_hierarchy.h>
 #include <libds/amt/hierarchy.h>
 //#include <libds/adt/table.h>
+#include <libds/amt/abstract_memory_type.h>
+using namespace ds::amt;
 
-//typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>> HierarchyNetworkBlock;
 typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator NetworkHierarchyIterator;
 
 class ConsoleApp {
@@ -22,13 +23,27 @@ private:
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
 	//Table<std::string, ImplicitSequence<NetworkRoute*>>* networkTable;
 
+	template<typename Iterator>
+	void matchWithAddress(Iterator start, Iterator end);
+
+	template<typename Iterator>
+	void matchLifetime(Iterator start, Iterator end);
+
+	template<typename Iterator>
+	void printRoutes(Iterator start, Iterator end);
+
+	AlgorithmProcessor algp;
+
 public:
 	ConsoleApp();
 	~ConsoleApp();
 	void Start();
+	void hierarchyIteratorDown();
+	void hierarchyIteratorUp();
 };
 
 ConsoleApp::ConsoleApp() : main_menu("Main menu") {
+	AlgorithmProcessor algp;
 	networkRoutes = new ImplicitSequence<NetworkBlock>();
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
@@ -51,55 +66,29 @@ void ConsoleApp::Start() {
 	
 	// ========== initialization ==========
 	SimpleLogger::log(LOG_INFO, "Console App init");
-	AlgorithmProcessor algp;
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
 
 	// ========== main menu ==========
-	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]()
-		{
-			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				return Predicate::print(rt);
-				});
-			//algp.printRoutes(); //netreba, zbytocne ide 2x
+	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]() {
+		printRoutes(networkRoutes->begin(), networkRoutes->end());
 		}));
-
 
 	// ========== level 1 ==========
 	CliMenu* level1 = new CliMenu("1 level - sequence");
 	main_menu.AddItem(level1);
 	
 	level1->AddItem(new MenuActionItem("print routes", [&]() {
-		algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-			return Predicate::print(rt);
-			});
+		printRoutes(networkRoutes->begin(), networkRoutes->end());
 		}));
 
 	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
-			std::cout << "type ip address in format X.X.X.X" << std::endl;
-			std::string ipAddr;
-			std::cin >> ipAddr;
-			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
-
-			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				return Predicate::matchWithAddress(compareRt, rt, true);
-				});
+			matchWithAddress(networkRoutes->begin(), networkRoutes->end());
 		}));
 	
 	level1->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
-			std::cout << "type lower ttl boundary" << std::endl;
-			std::string lower;
-			std::cin >> lower;
-			std::cout << "type upper ttl boundary" << std::endl;
-			std::string upper;
-			std::cin >> upper;
-			int lowerBorder = stoi(lower);
-			int higherBorder = stoi(upper);
-
-			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
-				});
+			matchLifetime(networkRoutes->begin(), networkRoutes->end());
 		}));
 
 	// ========== level 2 ==========
@@ -108,87 +97,38 @@ void ConsoleApp::Start() {
 	main_menu.AddItem(level2);
 
 	level2->AddItem(new MenuActionItem("print hierarchy", [&]() {
-		algp.process(
+		printRoutes(
 			NetworkHierarchyIterator(networkHierarchy, currentNode),
-			NetworkHierarchyIterator(networkHierarchy, nullptr),
-			[&](NetworkRoute* rt) {
-			return Predicate::print(rt);
-			});
+			NetworkHierarchyIterator(networkHierarchy, nullptr)
+		);
 	}));
 
 	level2->AddItem(new MenuActionItem("iterator up", [&]() {
-
-		if (networkHierarchy->accessParent(*currentNode) != nullptr) {
-			currentNode = networkHierarchy->accessParent(*currentNode);
-		}
-		else {
-			std::cout << "iterator is in root" << " ";
-		}
+		hierarchyIteratorUp();
 		}));
 
 	level2->AddItem(new MenuActionItem("iterator down", [&]() {
-		if (currentNode->sons_->size() <= 0) {
-			std::cout << "iterator is leaf" << std::endl;
-		}
-		else {
-
-			std::cout << "\navailable octet values: ";
-			for (auto son : *currentNode->sons_) {
-				std::cout << son->data_.octetValue << " ";
-			}
-			int octetValue = 0;
-			std::cout << "\n\nchoose octet value:" << std::endl;
-			std::cin >> octetValue;
-			for (auto son : *currentNode->sons_) {
-				if (son->data_.octetValue == octetValue) {
-					currentNode = son;
-					std::cout << "\niterator moved" << std::endl;
-					return;
-				}
-			}
-			std::cout << "\noctet not found: " << std::endl;
-		}
+		hierarchyIteratorDown();
 		}));
 		
-
 	level2->AddItem(new MenuActionItem("reset iterator", [&]() {
 		currentNode = networkHierarchy->accessRoot();
 		}));
 	
 	level2->AddItem(new MenuActionItem("matchWithAddress", [&]()
 		{
-			std::cout << "\ntype ip address in format X.X.X.X" << std::endl;
-			std::string ipAddr;
-			std::cin >> ipAddr;
-			std::cout << std::endl;
-			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
-
-			algp.process(
+			matchWithAddress(
 				NetworkHierarchyIterator(networkHierarchy, currentNode),
-				NetworkHierarchyIterator(networkHierarchy, nullptr), 
-				[&](NetworkRoute* rt) {
-				return Predicate::matchWithAddress(compareRt, rt, true);
-				});
+				NetworkHierarchyIterator(networkHierarchy, nullptr)
+			);
 		}));
 
 	level2->AddItem(new MenuActionItem("matchLifetime", [&]()
 		{
-			std::cout << "\ntype lower ttl boundary" << std::endl;
-			std::string lower;
-			std::cin >> lower;
-			std::cout << "\ntype upper ttl boundary" << std::endl;
-			std::string upper;
-			std::cin >> upper;
-			std::cout << std::endl;
-			int lowerBorder = stoi(lower);
-			int higherBorder = stoi(upper);
-
-			algp.process(
+			matchLifetime(
 				NetworkHierarchyIterator(networkHierarchy, currentNode),
-				NetworkHierarchyIterator(networkHierarchy, nullptr),
-				[&](NetworkRoute* rt) {
-				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
-				});
+				NetworkHierarchyIterator(networkHierarchy, nullptr)
+			);
 		}));
 
 	/*
@@ -224,3 +164,72 @@ void ConsoleApp::Start() {
 	this->main_menu.apply();
 }
 
+void ConsoleApp::hierarchyIteratorDown()
+{
+	if (currentNode->sons_->size() <= 0) {
+		std::cout << "iterator is leaf" << std::endl;
+	}
+	else {
+
+		std::cout << "\navailable octet values: ";
+		for (auto son : *currentNode->sons_) {
+			std::cout << son->data_.octetValue << " ";
+		}
+		int octetValue = 0;
+		std::cout << "\n\nchoose octet value:" << std::endl;
+		std::cin >> octetValue;
+		for (auto son : *currentNode->sons_) {
+			if (son->data_.octetValue == octetValue) {
+				currentNode = son;
+				std::cout << "\niterator moved" << std::endl;
+				return;
+			}
+		}
+		std::cout << "\noctet not found: " << std::endl;
+	}
+}
+
+void ConsoleApp::hierarchyIteratorUp()
+{
+	if (networkHierarchy->accessParent(*currentNode) != nullptr) {
+		currentNode = networkHierarchy->accessParent(*currentNode);
+	}
+	else {
+		std::cout << "iterator is in root" << " ";
+	}
+}
+
+template<typename Iterator>
+void ConsoleApp::matchWithAddress(Iterator start, Iterator end) {
+	std::cout << "type ip address in format X.X.X.X" << std::endl;
+	std::string ipAddr;
+	std::cin >> ipAddr;
+	std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
+	
+	algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+		return Predicate::matchWithAddress(compareRt, rt, true);
+		});
+};
+
+template<typename Iterator>
+void ConsoleApp::matchLifetime(Iterator start, Iterator end) {
+	std::cout << "type lower ttl boundary" << std::endl;
+	std::string lower;
+	std::cin >> lower;
+	std::cout << "type upper ttl boundary" << std::endl;
+	std::string upper;
+	std::cin >> upper;
+	int lowerBorder = stoi(lower);
+	int higherBorder = stoi(upper);
+
+	algp.process(start, end, [&](NetworkRoute* rt) {
+		return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
+	});
+};
+
+template<typename Iterator>
+void ConsoleApp::printRoutes(Iterator start, Iterator end) {
+	algp.process(start, end, [&](NetworkRoute* rt) {
+		return Predicate::print(rt);
+		});
+};
