@@ -120,7 +120,7 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence
 	SimpleLogger::log(LOG_INFO, "Hierarchy loaded with size: " + std::to_string(networkHierarchy.size()));
 }
 
-
+/*
 void Loader::printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy) {
 	for (auto current = networkHierarchy.begin(); current != networkHierarchy.end(); ++current) {
 
@@ -137,6 +137,7 @@ void Loader::printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkHierarchyBlo
 		}
 	}
 }
+*/
 
 
 

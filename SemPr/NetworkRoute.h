@@ -21,6 +21,7 @@ public:
 	void setNextHop(std::string nextHopAddress);
 	void setTtl(std::string ttl);
 	void printRoute();
+	std::string toString();
 
 	std::bitset<32> getNetworkAddress() const { return this->networkAddress; };
 	std::bitset<32> getNetworkMask() const { return this->networkMask; };
@@ -104,11 +105,21 @@ inline void NetworkRoute::setTtl(std::string ttl)
 
 void NetworkRoute::printRoute()
 {
-	std::cout << "route: " << this->bitsetToIp(this->networkAddress) << "/" << this->prefix 
-		<< ", mask: " << this->bitsetToIp(this->networkMask)
-		<< ", next-hop: " << this->bitsetToIp(this->nextHop)
-		<< ", ttl: " << this->ttl
-		<< std::endl;
+	std::cout << this->toString() << std::endl;
+}
+
+inline std::string NetworkRoute::toString()
+{
+	return "route: " 
+		+ this->bitsetToIp(this->networkAddress)
+		+ "/" 
+		+ std::to_string(this->prefix)
+		+ ", mask: "
+		+ this->bitsetToIp(this->networkMask)
+		+ ", next-hop: "
+		+ this->bitsetToIp(this->nextHop)
+		+ ", ttl: "
+		+ std::to_string(this->ttl);
 }
 
 std::string NetworkRoute::bitsetToIp(std::bitset<32> addressInBitset)

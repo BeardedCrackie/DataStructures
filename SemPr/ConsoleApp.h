@@ -69,15 +69,8 @@ void ConsoleApp::Start() {
 			std::cin >> ipAddr;
 			std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 
-			algp.processRouteTable(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-				std::bitset<32> parent = rt->getNetworkAddress();
-				for (size_t i = 0; i < rt->getPrefix(); i++)
-				{
-					if (parent[31 - i] != compareRt[31 - i]) {
-						return false;
-					}
-				}
-				return true;
+			algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
+				return Predicate::matchWithAddress(compareRt, rt, true);
 				});
 		}));
 	

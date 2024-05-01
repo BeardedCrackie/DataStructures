@@ -3,6 +3,8 @@
 #include <libds/heap_monitor.h>
 #include "NetworkRoute.h"
 #include <libds/amt/implicit_sequence.h>
+#include <libds/amt/explicit_hierarchy.h>
+#include "simpleLogger.h"
 
 using namespace ds::amt;
 
@@ -13,9 +15,10 @@ public:
     AlgorithmProcessor();
     ~AlgorithmProcessor();
     template<typename Iterator>
-    ImplicitSequence<NetworkRoute*>* processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
-    template<typename Iterator>
-    ImplicitSequence<NetworkRoute*>* processHierarchy(Iterator begin, Iterator end, std::function<boolean(NetworkHierarchyBlock&)> processFunction);
+    ImplicitSequence<NetworkRoute*>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
+    //template<typename Iterator>
+    //ImplicitSequence<NetworkRoute*>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*&)> processFunction);
+
     void printRoutes();
     void flush();
 private:
@@ -37,7 +40,7 @@ inline AlgorithmProcessor<T>::~AlgorithmProcessor()
 
 template<typename T>
 template<typename Iterator>
-inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
+inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
     SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::process");
 
@@ -51,35 +54,50 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable
     return networkRoutes;
 }
 
-
-template<typename T>
+template<>
 template<typename Iterator>
-inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processHierarchy(Iterator begin, Iterator end, std::function<boolean(NetworkHierarchyBlock&)> processFunction)
+inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
 {
     SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process");
-        NetworkHierarchyBlock network = static_cast<NetworkHierarchyBlock>(*current);
-        if (network.octetValue < 256 && network.route != nullptr && processFunction(*current))
+
+    NetworkHierarchyBlock item;
+
+    for (auto current = begin; current != end; ++current) {
+        item = *current;
+        if (item.route != nullptr && processFunction(item.route))
         {
-            networkRoutes->insertLast().data_ =network.route;
+            networkRoutes->insertLast().data_ = item.route;
         }
 //        ++current;
     }
     return networkRoutes;
 }
 
+/*
 template<typename T>
 inline void AlgorithmProcessor<T>::printRoutes()
 {
+    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::printRoutes");
+
+    this->process(this->networkRoutes->begin(), this->networkRoutes->end(), [](NetworkRoute* rt) {
+        rt->printRoute();
+        return true;
+        });
+
+    
+    /*
     if (networkRoutes->size() > 0) {
         for (auto current = networkRoutes->begin(); current != networkRoutes->end(); ++current) {
-            NetworkRoute* rt = *current;
+            T* rt = *current;
             rt->printRoute();
         }
     }
     else {
         std::cout << "List is Empty" << std::endl;
-    }
+    }*/
+/*
 }
+*/
 
 template<typename T>
 inline void AlgorithmProcessor<T>::flush()
@@ -89,3 +107,36 @@ inline void AlgorithmProcessor<T>::flush()
 }
 
 
+class Predicate
+{
+public:
+    static boolean matchWithAddress(std::bitset<32> compareRtFrom, NetworkRoute*& compareRtTo, bool print = true) {
+        std::bitset<32> parent = compareRtTo->getNetworkAddress();
+        for (size_t i = 0; i < compareRtTo->getPrefix(); i++)
+        {
+            if (parent[31 - i] != compareRtFrom[31 - i]) {
+                return false;
+            }
+        }
+        if (print) {
+            compareRtTo->printRoute();
+        }
+        return true;
+    }
+
+    static boolean matchLifetime(int lowerTtl, int upperTtl, NetworkRoute*& compareRtTo, bool print = true) {
+        if (compareRtTo->getTtl() >= lowerTtl && compareRtTo->getTtl() <= upperTtl) {
+            if (print) {
+                compareRtTo->printRoute();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    static boolean print(NetworkRoute*& route) {
+        route->printRoute();
+        return true;
+    }
+
+};
