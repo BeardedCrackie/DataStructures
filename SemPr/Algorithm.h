@@ -46,7 +46,7 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processRouteTable
         {
             networkRoutes->insertLast().data_ = *current;
         }
-        ++current;
+        //++current;
     }
     return networkRoutes;
 }
@@ -62,7 +62,7 @@ inline ImplicitSequence<NetworkRoute*>* AlgorithmProcessor<T>::processHierarchy(
         {
             networkRoutes->insertLast().data_ =network.route;
         }
-        ++current;
+//        ++current;
     }
     return networkRoutes;
 }
