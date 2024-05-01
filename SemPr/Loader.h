@@ -16,7 +16,6 @@ class Loader
 public:
 	void load(std::string filePath, ImplicitSequence<NetworkRoute*>& routeSequence);
 	void loadNetworkHierarchy(ImplicitSequence<NetworkRoute*>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
-	void printNetworkHierarchy(MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
 };
 
 

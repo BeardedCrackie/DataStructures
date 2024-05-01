@@ -59,7 +59,7 @@ void ConsoleApp::Start() {
 
 
 	// ========== level 1 ==========
-	CliMenu* level1 = new CliMenu("1 level");
+	CliMenu* level1 = new CliMenu("1 level - sequence");
 	main_menu.AddItem(level1);
 	
 	level1->AddItem(new MenuActionItem("matchWithAddress", [&]()
@@ -108,7 +108,7 @@ void ConsoleApp::Start() {
 		}));
 
 	// ========== level 2 ==========
-	CliMenu* level2 = new CliMenu("2 level");
+	CliMenu* level2 = new CliMenu("2 level - hierarchy");
 	main_menu.AddItem(level2);
 
 	level2->AddItem(new MenuActionItem("print hierarchy", [&]() {
@@ -200,6 +200,24 @@ void ConsoleApp::Start() {
 				return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
 				});
 		}));
+
+
+	// ========== level 3 ==========
+	CliMenu* level3 = new CliMenu("3 level - tables");
+	main_menu.AddItem(level3);
+
+	level3->AddItem(new MenuActionItem("print hierarchy", [&]() {
+
+		AlgorithmProcessor algpHierarchy = AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>();
+		auto start = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, currentNode);
+		auto end = Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator(networkHierarchy, nullptr);
+
+		algpHierarchy.process(start, end, [&](NetworkRoute* rt) {
+			return Predicate::print(rt);
+			});
+
+		}));
+
 
 	// ======== flush network ========
 	this->main_menu.AddItem(new MenuActionItem("flush", [&]()
