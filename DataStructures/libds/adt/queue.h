@@ -71,7 +71,7 @@ namespace ds::adt {
     //----------
 
     template<typename T>
-    ImplicitQueue<T>::ImplicitQueue():
+    ImplicitQueue<T>::ImplicitQueue() :
         ImplicitQueue(INIT_CAPACITY)
     {
     }
@@ -142,7 +142,7 @@ namespace ds::adt {
     {
         if (this->isEmpty()) {
             throw std::out_of_range("ImplicitQueue<T>::peek(): Queue is empty");
-        }
+    }
         return this->getSequence()->access(this->insertionIndex_)->data_;
     }
 
@@ -175,27 +175,31 @@ namespace ds::adt {
     template<typename T>
     void ExplicitQueue<T>::push(T element)
     {
-        this->getSequence()->insertFirst().data_ = element;
+        this->getSequence()->insertLast().data_ = element;
     }
 
     template<typename T>
     T& ExplicitQueue<T>::peek()
     {
-        if (this->isEmpty()) {
-            throw std::out_of_range("ExplicitQueue<T>::peek(): Queue is empty");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
         }
-        return this->getSequence()->accessLast()->data_;
+
+        return this->getSequence()->accessFirst()->data_;
     }
 
     template<typename T>
     T ExplicitQueue<T>::pop()
     {
-        if (this->isEmpty()) {
-            throw std::out_of_range("ExplicitQueue<T>::pop(): Queue is empty");
+        if (this->isEmpty())
+        {
+            throw std::out_of_range("Queue is empty!");
         }
-        T data = this->getSequence()->accessLast()->data_;
-        this->getSequence()->removeLast();
-        return data;
+
+        T result = this->getSequence()->accessFirst()->data_;
+        this->getSequence()->removeFirst();
+        return result;
     }
 
     template<typename T>
