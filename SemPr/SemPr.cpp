@@ -11,7 +11,7 @@ using namespace ds::amt;
 
 int main()
 {
-    LOGLEVEL = LOG_DEBUG;
+    LOGLEVEL = LOG_ERROR;
 
     initHeapMonitor();
     SetConsoleOutputCP(1250);

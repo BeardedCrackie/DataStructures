@@ -137,7 +137,7 @@
     <ClInclude Include="ConsoleApp.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="NetworkRoute.h" />
-    <ClInclude Include="simpleLogger.h" />
+    <ClInclude Include="SimpleLogger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
