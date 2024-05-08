@@ -12,6 +12,7 @@
 //#include <libds/adt/table.h>
 #include <libds/amt/abstract_memory_type.h>
 using namespace ds::amt;
+//using namespace ds::adt;
 
 typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator NetworkHierarchyIterator;
 
@@ -21,7 +22,7 @@ private:
 	ImplicitSequence<NetworkBlock>* networkRoutes;
 	MultiWayExplicitHierarchy<NetworkHierarchyBlock>* networkHierarchy;
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
-	//Table<std::string, ImplicitSequence<NetworkRoute*>>* networkTable;
+	//Table<std::string, ImplicitSequence<NetworkBlock>>* networkTable;
 
 	template<typename Iterator>
 	void matchWithAddress(Iterator start, Iterator end);
@@ -32,7 +33,7 @@ private:
 	template<typename Iterator>
 	void printRoutes(Iterator start, Iterator end);
 
-	AlgorithmProcessor algp;
+	AlgorithmProcessor<NetworkBlock> algp;
 
 public:
 	ConsoleApp();
@@ -43,12 +44,12 @@ public:
 };
 
 ConsoleApp::ConsoleApp() : main_menu("Main menu") {
-	AlgorithmProcessor algp;
+	AlgorithmProcessor<NetworkRoute*> algp;
 	networkRoutes = new ImplicitSequence<NetworkBlock>();
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
 	currentNode = networkHierarchy->accessRoot();
-	//networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkRoute*>>();
+	//networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>>();
 }
 
 ConsoleApp::~ConsoleApp() {
@@ -131,8 +132,9 @@ void ConsoleApp::Start() {
 			);
 		}));
 
-	/*
+	
 	// ========== level 3 ==========
+	/*
 	Loader().loadNetworkTable(*networkRoutes, *networkTable);
 
 	CliMenu* level3 = new CliMenu("3 level - tables");
@@ -143,11 +145,11 @@ void ConsoleApp::Start() {
 		std::string nextHop;
 		std::cin >> nextHop;
 
-		ImplicitSequence<NetworkRoute*>* rtSeq = nullptr;
+		ImplicitSequence<NetworkBlock>* rtSeq = nullptr;
 
 		if (networkTable->tryFind(nextHop, rtSeq)) {
-			for (NetworkRoute* rt : *rtSeq) {
-				rt->printRoute();
+			for (NetworkBlock rt : *rtSeq) {
+				rt.route->printRoute();
 			}
 		}
 	}));
@@ -206,8 +208,8 @@ void ConsoleApp::matchWithAddress(Iterator start, Iterator end) {
 	std::cin >> ipAddr;
 	std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 	
-	algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-		return Predicate::matchWithAddress(compareRt, rt, true);
+	algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkBlock* rt) {
+		return Predicate::matchWithAddress(compareRt, rt->route, true);
 		});
 };
 
@@ -222,14 +224,14 @@ void ConsoleApp::matchLifetime(Iterator start, Iterator end) {
 	int lowerBorder = stoi(lower);
 	int higherBorder = stoi(upper);
 
-	algp.process(start, end, [&](NetworkRoute* rt) {
-		return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
+	algp.process(start, end, [&](NetworkBlock* rt) {
+		return Predicate::matchLifetime(lowerBorder, higherBorder, rt->route, true);
 	});
 };
 
 template<typename Iterator>
 void ConsoleApp::printRoutes(Iterator start, Iterator end) {
-	algp.process(start, end, [&](NetworkRoute* rt) {
-		return Predicate::print(rt);
+	algp.process(start, end, [&](NetworkBlock* rt) {
+		return Predicate::print(rt->route);
 		});
 };

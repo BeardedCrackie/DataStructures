@@ -8,52 +8,52 @@
 
 using namespace ds::amt;
 
-//template<typename T>
+template<typename T>
 class AlgorithmProcessor
 {
 public:
     AlgorithmProcessor();
     ~AlgorithmProcessor();
     template<typename Iterator> 
-    ImplicitSequence<NetworkBlock>* process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction);
+    ImplicitSequence<T>* process(Iterator begin, Iterator end, std::function<boolean(T*)> processFunction);
     void flush();
 private:
     ImplicitSequence<NetworkBlock>* networkRoutes;
 };
 
-//template<typename T>
-inline AlgorithmProcessor::AlgorithmProcessor()
+template<typename T>
+inline AlgorithmProcessor<T>::AlgorithmProcessor()
 {
     networkRoutes = new ImplicitSequence<NetworkBlock>();
 }
 
-//template<typename T>
-inline AlgorithmProcessor::~AlgorithmProcessor()
+template<typename T>
+inline AlgorithmProcessor<T>::~AlgorithmProcessor()
 {
     delete networkRoutes;
     networkRoutes = nullptr;
 }
 
 
-////template<typename T>
+template<typename T>
 template<typename Iterator>
-inline ImplicitSequence<NetworkBlock>* AlgorithmProcessor::process(Iterator begin, Iterator end, std::function<boolean(NetworkRoute*)> processFunction)
+inline ImplicitSequence<T>* AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(T*)> processFunction)
 {
-    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<MultiWayExplicitHierarchy<NetworkHierarchyBlock>>::process");
+    SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(T*)> processFunction");
 
     for (auto current = begin; current != end; ++current) {
-        NetworkBlock item = *current;
-        if (item.route != nullptr && processFunction(item.route))
+        T item = *current;
+        if (processFunction(&item))
         {
-            networkRoutes->insertLast().data_.route = item.route;
+            networkRoutes->insertLast().data_ = item;
         }
     }
     return networkRoutes;
 }
 
 
-//template<typename T>
-inline void AlgorithmProcessor::flush()
+template<typename T>
+inline void AlgorithmProcessor<T>::flush()
 {
     SimpleLogger::log(LOG_DEBUG, "called: AlgorithmProcessor::flush");
     networkRoutes->clear();
@@ -64,6 +64,9 @@ class Predicate
 {
 public:
     static boolean matchWithAddress(std::bitset<32> compareRtFrom, NetworkRoute*& compareRtTo, bool print = true) {
+        if (compareRtTo == nullptr) {
+            return false;
+        }
         std::bitset<32> parent = compareRtTo->getNetworkAddress();
         for (size_t i = 0; i < compareRtTo->getPrefix(); i++)
         {
@@ -78,7 +81,7 @@ public:
     }
 
     static boolean matchLifetime(int lowerTtl, int upperTtl, NetworkRoute*& compareRtTo, bool print = true) {
-        if (compareRtTo->getTtl() >= lowerTtl && compareRtTo->getTtl() <= upperTtl) {
+        if (compareRtTo != nullptr && compareRtTo->getTtl() >= lowerTtl && compareRtTo->getTtl() <= upperTtl) {
             if (print) {
                 compareRtTo->printRoute();
             }
@@ -88,8 +91,11 @@ public:
     }
 
     static boolean print(NetworkRoute*& route) {
-        route->printRoute();
-        return true;
+        if (route != nullptr) {
+            route->printRoute();
+            return true;
+        }
+        return false;
     }
 
 };
