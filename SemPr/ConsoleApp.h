@@ -186,7 +186,8 @@ void ConsoleApp::Start() {
 			size_t prefixB = rtB.route->getPrefix();
 			std::bitset<32> ipB = rtB.route->getNetworkAddress();
 
-			for (size_t bit = 31; bit > prefixA && bit > prefixB; --bit) {
+			//for (size_t bit = 31; bit > prefixA && bit > prefixB; --bit) {
+			for (int bit = 31; bit >= 0; --bit) {
 				if (ipA[bit] < ipB[bit]) {
 					return true;
 				}
