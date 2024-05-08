@@ -19,8 +19,8 @@ class Loader
 public:
 	void load(std::string filePath, ImplicitSequence<NetworkBlock>& routeSequence);
 	void loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
-	//void loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, ImplicitSequence<NetworkBlock>>& networkTable);
-	void loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, NetworkBlock>& networkTable);
+	void loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>& networkTable);
+	//void loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, NetworkBlock>& networkTable);
 };
 
 
@@ -96,18 +96,17 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence,
 }
 
 
-void Loader::loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, NetworkBlock>& networkTable)
+void Loader::loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>& networkTable)
 {
 	NetworkRoute* route = nullptr;
 	std::string nextHop = "";
+	ImplicitSequence<NetworkBlock>** seqBlock = nullptr;
 	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
 		NetworkBlock route = *current;
 		nextHop = NetworkRoute::bitsetToIp(route.route->getNextHop());
-		//ImplicitSequence<NetworkRoute*>* sequence = &networkTable.find(nextHop);
-		if (!networkTable.contains(nextHop)) {
-			networkTable.insert(nextHop, NetworkBlock());
-			SimpleLogger::log(LOG_DEBUG, "inserted nexthop: " + nextHop);
+		if (!networkTable.tryFind(nextHop, seqBlock)) {
+			networkTable.insert(nextHop, new ImplicitSequence<NetworkBlock>());
 		}
-		networkTable.find(nextHop).route = route.route;
+		networkTable.find(nextHop)->insertLast().data_.route = route.route;
 	}
 }

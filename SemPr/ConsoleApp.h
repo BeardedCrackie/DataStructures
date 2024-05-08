@@ -23,7 +23,7 @@ private:
 	ImplicitSequence<NetworkBlock>* networkRoutes;
 	MultiWayExplicitHierarchy<NetworkHierarchyBlock>* networkHierarchy;
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
-	//Table<std::string, ImplicitSequence<NetworkBlock>>* networkTable;
+	SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>* networkTable;
 	//SortedSequenceTable<std::string, NetworkBlock>* networkTable;
 
 	template<typename Iterator>
@@ -51,8 +51,8 @@ ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
 	currentNode = networkHierarchy->accessRoot();
-	//networkTable = new HashTable<std::string, ImplicitSequence<NetworkBlock>>();
-	networkTable = new SortedSequenceTable<std::string, NetworkBlock>();
+	networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>();
+	//networkTable = new SortedSequenceTable<std::string, NetworkBlock>();
 }
 
 
@@ -144,10 +144,11 @@ void ConsoleApp::Start() {
 	CliMenu* level3 = new CliMenu("3 level - tables");
 	main_menu.AddItem(level3);
 
+	
 	level3->AddItem(new MenuActionItem("print all nextHop", [&]() {
 		for (auto current = networkTable->begin(); current != networkTable->end(); ++current) {
-			TableItem<std::string, NetworkBlock> item = *current;
-			std::cout << NetworkRoute::bitsetToIp(item.data_.route->getNextHop()) << std::endl;
+			TableItem<std::string, ImplicitSequence<NetworkBlock>*> item = *current;
+			std::cout << NetworkRoute::bitsetToIp(item.data_->accessFirst()->data_.route->getNextHop()) << std::endl;
 		}
 	}));
 
@@ -156,13 +157,16 @@ void ConsoleApp::Start() {
 		std::string nextHop;
 		std::cin >> nextHop;
 
-		//ImplicitSequence<NetworkBlock>* rtSeq = nullptr;
-		NetworkBlock* rtBlock = nullptr;
+		ImplicitSequence<NetworkBlock>** seqBlock = nullptr;
 
-		if (networkTable->tryFind(nextHop, rtBlock)) {
-			rtBlock->route->printRoute();
+		if (networkTable->tryFind(nextHop, seqBlock)) {
+			ImplicitSequence<NetworkBlock>* item = *seqBlock;
+			for (NetworkBlock nb : *item) {
+				nb.route->printRoute();
+			}
 		}
 	}));
+	
 
 	// ======== flush network ========
 	this->main_menu.AddItem(new MenuActionItem("flush", [&]()
