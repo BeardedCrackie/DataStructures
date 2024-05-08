@@ -57,14 +57,19 @@ ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 
 
 ConsoleApp::~ConsoleApp() {
-	networkHierarchy->clear();
+
 	delete networkHierarchy;
+	
 	for (size_t i = 0; i < networkRoutes->size(); ++i) {
 		delete networkRoutes->access(i)->data_.route;
 	}
-	//networkRoutes->clear();
 	delete networkRoutes;
-	networkRoutes = nullptr;
+
+	for (auto seq : *networkTable) {
+		delete seq.data_;
+	}
+	delete networkTable;
+
 }
 
 void ConsoleApp::Start() {
