@@ -98,6 +98,7 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence,
 
 void Loader::loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>& networkTable)
 {
+
 	NetworkRoute* route = nullptr;
 	std::string nextHop = "";
 	ImplicitSequence<NetworkBlock>** seqBlock = nullptr;

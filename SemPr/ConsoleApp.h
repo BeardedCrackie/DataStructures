@@ -79,14 +79,20 @@ void ConsoleApp::Start() {
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
 
 	// ========== main menu ==========
+	CliMenu* level1 = new CliMenu("1 level - sequence");
+	main_menu.AddItem(level1);
+	
+	CliMenu* level2 = new CliMenu("2 level - hierarchy");
+	main_menu.AddItem(level2);
+
+	CliMenu* level3 = new CliMenu("3 level - tables");
+	main_menu.AddItem(level3);
+
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]() {
 		printRoutes(networkRoutes->begin(), networkRoutes->end());
 		}));
 
 	// ========== level 1 ==========
-	CliMenu* level1 = new CliMenu("1 level - sequence");
-	main_menu.AddItem(level1);
-	
 	level1->AddItem(new MenuActionItem("print routes", [&]() {
 		printRoutes(networkRoutes->begin(), networkRoutes->end());
 		}));
@@ -103,9 +109,6 @@ void ConsoleApp::Start() {
 
 	// ========== level 2 ==========
 	Loader().loadNetworkHierarchy(*networkRoutes, *networkHierarchy);
-	CliMenu* level2 = new CliMenu("2 level - hierarchy");
-	main_menu.AddItem(level2);
-
 	level2->AddItem(new MenuActionItem("print hierarchy", [&]() {
 		printRoutes(
 			NetworkHierarchyIterator(networkHierarchy, currentNode),
@@ -143,13 +146,8 @@ void ConsoleApp::Start() {
 
 	
 	// ========== level 3 ==========
-	
 	Loader().loadNetworkTable(*networkRoutes, *networkTable);
 
-	CliMenu* level3 = new CliMenu("3 level - tables");
-	main_menu.AddItem(level3);
-
-	
 	level3->AddItem(new MenuActionItem("print all nextHop", [&]() {
 		for (auto current = networkTable->begin(); current != networkTable->end(); ++current) {
 			TableItem<std::string, ImplicitSequence<NetworkBlock>*> item = *current;
@@ -163,22 +161,13 @@ void ConsoleApp::Start() {
 		std::cin >> nextHop;
 
 		ImplicitSequence<NetworkBlock>** seqBlock = nullptr;
-
 		if (networkTable->tryFind(nextHop, seqBlock)) {
-			ImplicitSequence<NetworkBlock>* item = *seqBlock;
-			for (NetworkBlock nb : *item) {
+			for (NetworkBlock nb : **seqBlock) {
 				nb.route->printRoute();
 			}
 		}
 	}));
-	
 
-	// ======== flush network ========
-	this->main_menu.AddItem(new MenuActionItem("flush", [&]()
-		{
-			delete networkRoutes;
-			networkRoutes = nullptr;
-		}));
 
 	// ======== start console app ========
 	this->main_menu.apply();

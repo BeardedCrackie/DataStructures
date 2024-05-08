@@ -39,6 +39,9 @@ template<typename T>
 template<typename Iterator>
 inline ImplicitSequence<T>* AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(T*)> processFunction)
 {
+    delete networkRoutes;
+    networkRoutes = new ImplicitSequence<NetworkBlock>(); //new data after each call
+
     SimpleLogger::log(LOG_INFO, "called: AlgorithmProcessor<T>::process(Iterator begin, Iterator end, std::function<boolean(T*)> processFunction");
 
     for (auto current = begin; current != end; ++current) {
