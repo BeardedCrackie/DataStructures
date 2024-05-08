@@ -32,6 +32,17 @@ public:
 	static std::string bitsetToIp(std::bitset<32> addressInBitset);
 	static std::bitset<32> ipToBitset(std::string ipAddress);
 
+	bool operator==(const NetworkRoute& other) const {
+		return this->networkAddress == other.networkAddress
+			&& this->networkMask == other.networkMask
+			&& this->nextHop == other.nextHop
+			&& this->ttl == other.ttl;
+	}
+	bool operator!=(const NetworkRoute& other) const
+	{
+		return !(*this == other);
+	}
+
 private:
 	std::bitset<32> networkAddress;
 	std::bitset<32> networkMask;
@@ -201,6 +212,11 @@ struct NetworkHierarchyBlock : NetworkBlock
 	bool operator==(const NetworkHierarchyBlock& other) const
 	{
 		return octetValue == other.octetValue && route == other.route;
+	}
+
+	bool operator!=(const NetworkHierarchyBlock& other) const
+	{
+		return !(*this == other);
 	}
 
 	size_t octetValue = 0 - 1;
