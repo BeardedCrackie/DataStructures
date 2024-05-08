@@ -3,7 +3,7 @@
 #include <libds/heap_monitor.h>
 #include <libds/amt/implicit_sequence.h>
 #include <libds/amt/explicit_hierarchy.h>
-//include <libds/adt/table.h>
+#include <libds/adt/table.h>
 #include "NetworkRoute.h"
 #include <iostream>
 #include <fstream>
@@ -11,7 +11,7 @@
 #include "simpleLogger.h"
 
 using namespace ds::amt;
-//ing namespace ds::adt;
+using namespace ds::adt;
 
 
 class Loader
@@ -20,7 +20,9 @@ public:
 	void load(std::string filePath, ImplicitSequence<NetworkBlock>& routeSequence);
 	void loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence, MultiWayExplicitHierarchy<NetworkHierarchyBlock>& networkHierarchy);
 	//void loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, ImplicitSequence<NetworkBlock>>& networkTable);
+	void loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, NetworkBlock>& networkTable);
 };
+
 
 
 void Loader::load(std::string filePath, ImplicitSequence<NetworkBlock>& routeSequence) {
@@ -94,19 +96,18 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence,
 }
 
 
-void Loader::loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, ImplicitSequence<NetworkBlock>>& networkTable)
+void Loader::loadNetworkTable(ImplicitSequence<NetworkBlock>& routeSequence, Table<std::string, NetworkBlock>& networkTable)
 {
 	NetworkRoute* route = nullptr;
 	std::string nextHop = "";
 	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
 		NetworkBlock route = *current;
-		nextHop = route.route->getNextHop().to_string();
+		nextHop = NetworkRoute::bitsetToIp(route.route->getNextHop());
 		//ImplicitSequence<NetworkRoute*>* sequence = &networkTable.find(nextHop);
 		if (!networkTable.contains(nextHop)) {
-			networkTable.insert(nextHop, ImplicitSequence<NetworkBlock>());
+			networkTable.insert(nextHop, NetworkBlock());
+			SimpleLogger::log(LOG_DEBUG, "inserted nexthop: " + nextHop);
 		}
-		networkTable.find(nextHop).insertLast().data_.route = route.route;
+		networkTable.find(nextHop).route = route.route;
 	}
 }
-*/
-

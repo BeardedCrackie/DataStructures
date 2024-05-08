@@ -9,12 +9,13 @@
 
 #include <libds/amt/explicit_hierarchy.h>
 #include <libds/amt/hierarchy.h>
-//#include <libds/adt/table.h>
+#include <libds/adt/table.h>
 #include <libds/amt/abstract_memory_type.h>
 using namespace ds::amt;
-//using namespace ds::adt;
+using namespace ds::adt;
 
 typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator NetworkHierarchyIterator;
+
 
 class ConsoleApp {
 private:
@@ -23,6 +24,7 @@ private:
 	MultiWayExplicitHierarchy<NetworkHierarchyBlock>* networkHierarchy;
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
 	//Table<std::string, ImplicitSequence<NetworkBlock>>* networkTable;
+	//SortedSequenceTable<std::string, NetworkBlock>* networkTable;
 
 	template<typename Iterator>
 	void matchWithAddress(Iterator start, Iterator end);
@@ -49,8 +51,10 @@ ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
 	currentNode = networkHierarchy->accessRoot();
-	//networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>>();
+	//networkTable = new HashTable<std::string, ImplicitSequence<NetworkBlock>>();
+	networkTable = new SortedSequenceTable<std::string, NetworkBlock>();
 }
+
 
 ConsoleApp::~ConsoleApp() {
 	networkHierarchy->clear();
@@ -134,26 +138,31 @@ void ConsoleApp::Start() {
 
 	
 	// ========== level 3 ==========
-	/*
+	
 	Loader().loadNetworkTable(*networkRoutes, *networkTable);
 
 	CliMenu* level3 = new CliMenu("3 level - tables");
 	main_menu.AddItem(level3);
 
-	level3->AddItem(new MenuActionItem("find nextHop", [&]() {
+	level3->AddItem(new MenuActionItem("print all nextHop", [&]() {
+		for (auto current = networkTable->begin(); current != networkTable->end(); ++current) {
+			TableItem<std::string, NetworkBlock> item = *current;
+			std::cout << NetworkRoute::bitsetToIp(item.data_.route->getNextHop()) << std::endl;
+		}
+	}));
+
+	level3->AddItem(new MenuActionItem("find by nextHop", [&]() {
 		std::cout << "\nnext hop address" << std::endl;
 		std::string nextHop;
 		std::cin >> nextHop;
 
-		ImplicitSequence<NetworkBlock>* rtSeq = nullptr;
+		//ImplicitSequence<NetworkBlock>* rtSeq = nullptr;
+		NetworkBlock* rtBlock = nullptr;
 
-		if (networkTable->tryFind(nextHop, rtSeq)) {
-			for (NetworkBlock rt : *rtSeq) {
-				rt.route->printRoute();
-			}
+		if (networkTable->tryFind(nextHop, rtBlock)) {
+			rtBlock->route->printRoute();
 		}
 	}));
-	*/
 
 	// ======== flush network ========
 	this->main_menu.AddItem(new MenuActionItem("flush", [&]()
@@ -208,7 +217,7 @@ void ConsoleApp::matchWithAddress(Iterator start, Iterator end) {
 	std::cin >> ipAddr;
 	std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 	
-	algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkBlock* rt) {
+	algp.process(start, end, [&](NetworkBlock* rt) {
 		return Predicate::matchWithAddress(compareRt, rt->route, true);
 		});
 };
