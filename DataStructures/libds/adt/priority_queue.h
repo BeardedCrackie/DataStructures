@@ -101,7 +101,7 @@ namespace ds::adt {
 
     template <typename P, typename T>
     class UnsortedImplicitSequencePriorityQueue :
-        public UnsortedSequencePriorityQueue<P, T, amt::IS<PQItem<P,T>>>
+        public UnsortedSequencePriorityQueue<P, T, amt::IS<PQItem<P, T>>>
     {
     public:
         void push(P priority, T data) override;
@@ -362,6 +362,7 @@ namespace ds::adt {
     void SortedImplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
         PQItem<P, T>* queueData = nullptr;
+
         if (this->isEmpty() || priority <= this->getSequence()->accessLast()->data_.priority_)
         {
             queueData = &this->getSequence()->insertLast().data_;
@@ -377,6 +378,7 @@ namespace ds::adt {
                     return block->data_.priority_ <= priority;
                 })).data_;
         }
+
         queueData->priority_ = priority;
         queueData->data_ = data;
     }
@@ -391,6 +393,7 @@ namespace ds::adt {
     void SortedExplicitSequencePriorityQueue<P, T>::push(P priority, T data)
     {
         PQItem<P, T>* queueData = nullptr;
+
         if (this->isEmpty() || priority <= this->getSequence()->accessFirst()->data_.priority_)
         {
             queueData = &this->getSequence()->insertFirst().data_;
@@ -408,6 +411,7 @@ namespace ds::adt {
                 });
             queueData = &this->getSequence()->insertAfter(*prevBlock).data_;
         }
+
         queueData->priority_ = priority;
         queueData->data_ = data;
     }
@@ -419,7 +423,7 @@ namespace ds::adt {
     }
 
     template<typename P, typename T>
-    TwoLists<P, T>::TwoLists(size_t expectedSize):
+    TwoLists<P, T>::TwoLists(size_t expectedSize) :
         shortSequence_(new ShortSequenceType(static_cast<size_t>(std::ceil(std::sqrt(expectedSize))), false)),
         longSequence_(new LongSequenceType())
     {
@@ -529,12 +533,15 @@ namespace ds::adt {
         PQItem<P, T>& queueData = this->getHierarchy()->insertLastLeaf().data_;
         queueData.priority_ = priority;
         queueData.data_ = data;
+
         HierarchyBlockType* currentBlock = this->getHierarchy()->accessLastLeaf();
         HierarchyBlockType* blockParent = this->getHierarchy()->accessParent(*currentBlock);
+
         while (blockParent != nullptr && currentBlock->data_.priority_ < blockParent->data_.priority_)
         {
             using std::swap;
             swap(currentBlock->data_, blockParent->data_);
+
             currentBlock = blockParent;
             blockParent = this->getHierarchy()->accessParent(*currentBlock);
         }
@@ -558,11 +565,14 @@ namespace ds::adt {
         {
             throw std::out_of_range("Queue is empty!");
         }
+
         HierarchyBlockType* currentBlock = this->getHierarchy()->accessRoot();
+
         T result = currentBlock->data_.data_;
         using std::swap;
         swap(currentBlock->data_, this->getHierarchy()->accessLastLeaf()->data_);
         this->getHierarchy()->removeLastLeaf();
+
         if (!this->isEmpty())
         {
             std::function<HierarchyBlockType* (HierarchyBlockType*)> findSonWithHigherPriority;
@@ -570,16 +580,21 @@ namespace ds::adt {
                 {
                     HierarchyBlockType* leftSon = this->getHierarchy()->accessLeftSon(*blockParent);
                     HierarchyBlockType* rightSon = this->getHierarchy()->accessRightSon(*blockParent);
+
                     return rightSon == nullptr || leftSon->data_.priority_ < rightSon->data_.priority_ ? leftSon : rightSon;
                 };
+
             HierarchyBlockType* sonBlock = findSonWithHigherPriority(currentBlock);
+
             while (sonBlock != nullptr && currentBlock->data_.priority_ > sonBlock->data_.priority_)
             {
                 swap(currentBlock->data_, sonBlock->data_);
+
                 currentBlock = sonBlock;
                 sonBlock = findSonWithHigherPriority(currentBlock);
             }
         }
+
         return result;
     }
 
