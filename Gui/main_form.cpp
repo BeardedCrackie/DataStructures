@@ -43,8 +43,8 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
 	adt->add_test(std::make_unique<ds::tests::QueueTest>());
 	adt->add_test(std::make_unique<ds::tests::PriorityQueueTest>());
 
-	// TODO 10
-	//adt->add_test(std::make_unique<ds::tests::SequenceTableTest>());
+	// cv 11
+	adt->add_test(std::make_unique<ds::tests::SequenceTableTest>());
 
     // TODO 11
 	//adt->add_test(std::make_unique<ds::tests::NonSequenceTableTest>());

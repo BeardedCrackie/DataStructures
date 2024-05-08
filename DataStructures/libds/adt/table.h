@@ -807,17 +807,17 @@ namespace ds::adt {
     {
         BSTNodeType* node = nullptr;
         if (this->tryFindNodeWithKey(key, node)) {
-            throw::invalid_argument("GeneralBinarySearchTree<K, T, ItemType>::insert(const K& key, T data): key already exists");
+            throw std::invalid_argument("GeneralBinarySearchTree<K, T, ItemType>::insert(const K& key, T data): key already exists");
         }
         BSTNodeType* newNode = nullptr;
         if (node == nullptr) {
             newNode = &this->getHierarchy()->emplaceRoot();
-        }
-        if (key < node->data_.key_) {
-            newNode = this->getHierarchy()->insertLeftSon(*node);
+        } 
+        if (key < node->data_.key_) { //todo check else if is needed
+            newNode = &this->getHierarchy()->insertLeftSon(*node);
         }
         else {
-            newNode = this->getHierarchy()->insertRightSon(*node);
+            newNode = &this->getHierarchy()->insertRightSon(*node);
         }
         ++this->size_;
         //todo balancetree
@@ -830,7 +830,7 @@ namespace ds::adt {
     {
         BSTNodeType* node = nullptr;
         if (this->tryFindNodeWithKey(key, node)) {
-            data = node->data_.data_;
+            data = &node->data_.data_;
             return true;
         }
         else {
@@ -843,9 +843,9 @@ namespace ds::adt {
     {
         BSTNodeType* node = nullptr;
         if (!this->tryFindNodeWithKey(key, node)) {
-            throw std::invalid_argument("GeneralBinarySearchTree<K, T, ItemType>::remove(const K& key): key not exists")
+            throw std::invalid_argument("GeneralBinarySearchTree<K, T, ItemType>::remove(const K& key): key not exists");
         }
-        T data = node->data_->data_;
+        T data = node->data_.data_;
         this->removeNode(node);
         --this->size_;
         return data;
@@ -930,8 +930,8 @@ namespace ds::adt {
     template<typename K, typename T>
     bool BinarySearchTree<K, T>::equals(const ADT& other)
     {
-        const BinarySearchTree<K, T>* otherTable = dynamic_castconst <BinarySearchTree<K, T>*>(&otherTable);
-        return otherTable != nullptr && Table<K, T>::areEquals(*this, other);
+        const BinarySearchTree<K, T>* otherTable = dynamic_cast<const BinarySearchTree<K, T>*>(&other);
+        return otherTable != nullptr && Table<K, T>::areEqual(*this, other);
     }
 
     //----------
