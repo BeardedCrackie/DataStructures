@@ -103,9 +103,26 @@ namespace ds::adt {
     template<typename T>
     ADT& ImplicitQueue<T>::assign(const ADT& other)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        const ImplicitQueue<T>* otherQueue = dynamic_cast<const ImplicitQueue<T>*>(&other);
+        if (otherQueue == nullptr) {
+            throw std::runtime_error("ADT is not Implicit Queue");
+        }
+        if (this != &other) {
+            if (this->getSequence()->size() < other.size()) {
+                throw std::runtime_error("Queue not enought capacity");
+            }
+            this->clear();
+            this->insertionIndex_ = this->getSequence()->indexOfNext(otherQueue->size() - 1);
+            this->removalIndex_ = 0;
+            this->size_ = otherQueue->size();
+            size_t otherIndex = otherQueue->removalIndex_;
+            for (size_t i = 0; i < otherQueue->size(); i++)
+            {
+                this->getSequence()->access(i)->data_ = otherQueue->getSequence()->access(otherIndex)->data_;
+                otherIndex = otherQueue->getSequence()->indexOfNext(otherIndex);
+            }
+        }
+        return *this;
     }
 
     template<typename T>
@@ -124,17 +141,39 @@ namespace ds::adt {
     template<typename T>
     bool ImplicitQueue<T>::equals(const ADT& other)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this == &other) {
+            return true;
+        }
+        if (this->size() != other.size()) {
+            return false;
+        }
+        const ImplicitQueue<T>* otherQueue = dynamic_cast<const ImplicitQueue<T>*>(&other);
+        if (otherQueue == nullptr) {
+            return false;
+        }
+        int selfIndex = this->removalIndex_;
+        int otherIndex = otherQueue->removalIndex_;
+        for (size_t i = 0; i < this->size(); i++) 
+        {
+            if (this->getSequence()->access(selfIndex)->data_ != otherQueue->getSequence()->access(otherIndex)->data_)
+            {
+                return false;
+            }
+            selfIndex = this->getSequence()->indexOfNext(selfIndex);
+            otherIndex = otherQueue->getSequence()->indexOfNext(otherIndex);
+        }
+        return true;
     }
 
     template<typename T>
     void ImplicitQueue<T>::push(T element)
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->size() == this->getCapacity()) {
+            throw std::out_of_range("Queue is full!");
+        }
+        this->getSequence()->access(this->insertionIndex_)->data_ = element;
+        this->insertionIndex_ = this->getSequence()->indexOfNext(insertionIndex_);
+        ++this->size_;
     }
 
     template<typename T>
@@ -142,16 +181,20 @@ namespace ds::adt {
     {
         if (this->isEmpty()) {
             throw std::out_of_range("ImplicitQueue<T>::peek(): Queue is empty");
-    }
-        return this->getSequence()->access(this->insertionIndex_)->data_;
+        }
+        return this->getSequence()->access(this->removalIndex_)->data_;
     }
 
     template<typename T>
     T ImplicitQueue<T>::pop()
     {
-        // TODO 09
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        if (this->isEmpty()) {
+            throw std::out_of_range("ImplicitQueue<T>::pop(): Queue is empty");
+        }
+        T result = this->getSequence()->access(this->removalIndex_)->data_;
+        removalIndex_ = this->getSequence()->indexOfNext(removalIndex_);
+        --this->size_;
+        return result;
     }
 
     template<typename T>
