@@ -178,17 +178,29 @@ void ConsoleApp::Start() {
 
 
 	// ========== level 4 ==========
-	level4->AddItem(new MenuActionItem("sort by time", [&]() {
-		algSorter.sort(*algp.getSequence(), [&](NetworkBlock firstRt, NetworkBlock secondR) {
+	level4->AddItem(new MenuActionItem("sort by prefix", [&]() {
+		algSorter.sort(*algp.getSequence(), [&](NetworkBlock rtA, NetworkBlock rtB) {
 
-			return true;
+			size_t prefixA = rtA.route->getPrefix();
+			std::bitset<32> ipA= rtA.route->getNetworkAddress();
+			size_t prefixB = rtB.route->getPrefix();
+			std::bitset<32> ipB = rtB.route->getNetworkAddress();
+
+			for (size_t bit = 31; bit > prefixA && bit > prefixB; --bit) {
+				if (ipA[bit] < ipB[bit]) {
+					return true;
+				}
+				else if (ipA[bit] > ipB[bit]) {
+					return false;
+				}
+			}
+			return rtA.route->getPrefix() < rtB.route->getPrefix();
 			});
 		}));
 
 	level4->AddItem(new MenuActionItem("sort by time", [&]() {
-		algSorter.sort(*algp.getSequence(), [&](NetworkBlock firstRt, NetworkBlock secondR) {
-
-			return true;
+		algSorter.sort(*algp.getSequence(), [&](NetworkBlock firstRt, NetworkBlock secondRt) {
+			return firstRt.route->getTtl() < secondRt.route->getTtl();
 			});
 		}));
 

@@ -72,10 +72,9 @@ class AlgorithmSorter
 {
 public:
     AlgorithmSorter();
-    inline void sort(ImplicitSequence<T> sequence, std::function<boolean(T, T)> compareFunction) {
+    inline void sort(ImplicitSequence<T>& sequence, std::function<boolean(T, T)> compareFunction) {
         sorter.sort(sequence, compareFunction);
     }
-    void setSorter(QuickSort<T> sorter);
 private:
     QuickSort<T> sorter;
 };
@@ -85,12 +84,6 @@ template<typename T>
 inline AlgorithmSorter<T>::AlgorithmSorter()
 {
     this->sorter = QuickSort<T>();
-}
-
-template<typename T>
-inline void AlgorithmSorter<T>::setSorter(QuickSort<T> sorter)
-{
-    this->sorter = sorter;
 }
 
 
