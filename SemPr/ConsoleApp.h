@@ -25,6 +25,7 @@ private:
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
 	SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>* networkTable;
 	//SortedSequenceTable<std::string, NetworkBlock>* networkTable;
+	AlgorithmSorter<NetworkBlock> algSorter;
 
 	template<typename Iterator>
 	void matchWithAddress(Iterator start, Iterator end);
@@ -53,6 +54,10 @@ ConsoleApp::ConsoleApp() : main_menu("Main menu") {
 	currentNode = networkHierarchy->accessRoot();
 	networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>();
 	//networkTable = new SortedSequenceTable<std::string, NetworkBlock>();
+
+	AlgorithmSorter<NetworkBlock> algSorter;
+	
+	
 }
 
 
@@ -87,6 +92,9 @@ void ConsoleApp::Start() {
 
 	CliMenu* level3 = new CliMenu("3 level - tables");
 	main_menu.AddItem(level3);
+
+	CliMenu* level4 = new CliMenu("4 level - sort");
+	main_menu.AddItem(level4);
 
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]() {
 		printRoutes(networkRoutes->begin(), networkRoutes->end());
@@ -168,6 +176,30 @@ void ConsoleApp::Start() {
 		}
 	}));
 
+
+	// ========== level 4 ==========
+	level4->AddItem(new MenuActionItem("sort by time", [&]() {
+		algSorter.sort(*algp.getSequence(), [&](NetworkBlock firstRt, NetworkBlock secondR) {
+
+			return true;
+			});
+		}));
+
+	level4->AddItem(new MenuActionItem("sort by time", [&]() {
+		algSorter.sort(*algp.getSequence(), [&](NetworkBlock firstRt, NetworkBlock secondR) {
+
+			return true;
+			});
+		}));
+
+	level4->AddItem(new MenuActionItem("print routes", [&]() {
+		AlgorithmProcessor<NetworkBlock>().process(
+			algp.getSequence()->begin(),
+			algp.getSequence()->end(),
+			[&](NetworkBlock* rt) {
+				return Predicate::print(rt->route);
+			});
+		}));
 
 	// ======== start console app ========
 	this->main_menu.apply();

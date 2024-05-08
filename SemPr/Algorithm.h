@@ -4,9 +4,12 @@
 #include "NetworkRoute.h"
 #include <libds/amt/implicit_sequence.h>
 #include <libds/amt/explicit_hierarchy.h>
+#include <libds/adt/sorts.h>
 #include "simpleLogger.h"
 
 using namespace ds::amt;
+using namespace ds::adt;
+
 
 template<typename T>
 class AlgorithmProcessor
@@ -17,6 +20,7 @@ public:
     template<typename Iterator> 
     ImplicitSequence<T>* process(Iterator begin, Iterator end, std::function<boolean(T*)> processFunction);
     void flush();
+    ImplicitSequence<T>* getSequence() { return this->networkRoutes; };
 private:
     ImplicitSequence<NetworkBlock>* networkRoutes;
 };
@@ -60,6 +64,33 @@ inline void AlgorithmProcessor<T>::flush()
 {
     SimpleLogger::log(LOG_DEBUG, "called: AlgorithmProcessor::flush");
     networkRoutes->clear();
+}
+
+
+template<typename T>
+class AlgorithmSorter
+{
+public:
+    AlgorithmSorter();
+    inline void sort(ImplicitSequence<T> sequence, std::function<boolean(T, T)> compareFunction) {
+        sorter.sort(sequence, compareFunction);
+    }
+    void setSorter(QuickSort<T> sorter);
+private:
+    QuickSort<T> sorter;
+};
+
+
+template<typename T>
+inline AlgorithmSorter<T>::AlgorithmSorter()
+{
+    this->sorter = QuickSort<T>();
+}
+
+template<typename T>
+inline void AlgorithmSorter<T>::setSorter(QuickSort<T> sorter)
+{
+    this->sorter = sorter;
 }
 
 
