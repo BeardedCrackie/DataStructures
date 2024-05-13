@@ -9,11 +9,13 @@
 
 #include <libds/amt/explicit_hierarchy.h>
 #include <libds/amt/hierarchy.h>
-//#include <libds/adt/table.h>
+#include <libds/adt/table.h>
 #include <libds/amt/abstract_memory_type.h>
 using namespace ds::amt;
+using namespace ds::adt;
 
 typedef Hierarchy<MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>>::PreOrderHierarchyIterator NetworkHierarchyIterator;
+
 
 class ConsoleApp {
 private:
@@ -21,7 +23,9 @@ private:
 	ImplicitSequence<NetworkBlock>* networkRoutes;
 	MultiWayExplicitHierarchy<NetworkHierarchyBlock>* networkHierarchy;
 	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currentNode;
-	//Table<std::string, ImplicitSequence<NetworkRoute*>>* networkTable;
+	SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>* networkTable;
+	//SortedSequenceTable<std::string, NetworkBlock>* networkTable;
+	AlgorithmSorter<NetworkBlock> algSorter;
 
 	template<typename Iterator>
 	void matchWithAddress(Iterator start, Iterator end);
@@ -32,7 +36,7 @@ private:
 	template<typename Iterator>
 	void printRoutes(Iterator start, Iterator end);
 
-	AlgorithmProcessor algp;
+	AlgorithmProcessor<NetworkBlock> algp;
 
 public:
 	ConsoleApp();
@@ -43,23 +47,34 @@ public:
 };
 
 ConsoleApp::ConsoleApp() : main_menu("Main menu") {
-	AlgorithmProcessor algp;
+	AlgorithmProcessor<NetworkRoute*> algp;
 	networkRoutes = new ImplicitSequence<NetworkBlock>();
 	networkHierarchy = new MultiWayExplicitHierarchy<NetworkHierarchyBlock>();
 	networkHierarchy->emplaceRoot();
 	currentNode = networkHierarchy->accessRoot();
-	//networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkRoute*>>();
+	networkTable = new SortedSequenceTable<std::string, ImplicitSequence<NetworkBlock>*>();
+	//networkTable = new SortedSequenceTable<std::string, NetworkBlock>();
+
+	AlgorithmSorter<NetworkBlock> algSorter;
+	
+	
 }
 
+
 ConsoleApp::~ConsoleApp() {
-	networkHierarchy->clear();
+
 	delete networkHierarchy;
+	
 	for (size_t i = 0; i < networkRoutes->size(); ++i) {
 		delete networkRoutes->access(i)->data_.route;
 	}
-	//networkRoutes->clear();
 	delete networkRoutes;
-	networkRoutes = nullptr;
+
+	for (auto seq : *networkTable) {
+		delete seq.data_;
+	}
+	delete networkTable;
+
 }
 
 void ConsoleApp::Start() {
@@ -69,14 +84,23 @@ void ConsoleApp::Start() {
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
 
 	// ========== main menu ==========
+	CliMenu* level1 = new CliMenu("1 level - sequence");
+	main_menu.AddItem(level1);
+	
+	CliMenu* level2 = new CliMenu("2 level - hierarchy");
+	main_menu.AddItem(level2);
+
+	CliMenu* level3 = new CliMenu("3 level - tables");
+	main_menu.AddItem(level3);
+
+	CliMenu* level4 = new CliMenu("4 level - sort");
+	main_menu.AddItem(level4);
+
 	main_menu.AddItem(new MenuActionItem("Print loaded networks", [&]() {
 		printRoutes(networkRoutes->begin(), networkRoutes->end());
 		}));
 
 	// ========== level 1 ==========
-	CliMenu* level1 = new CliMenu("1 level - sequence");
-	main_menu.AddItem(level1);
-	
 	level1->AddItem(new MenuActionItem("print routes", [&]() {
 		printRoutes(networkRoutes->begin(), networkRoutes->end());
 		}));
@@ -93,9 +117,6 @@ void ConsoleApp::Start() {
 
 	// ========== level 2 ==========
 	Loader().loadNetworkHierarchy(*networkRoutes, *networkHierarchy);
-	CliMenu* level2 = new CliMenu("2 level - hierarchy");
-	main_menu.AddItem(level2);
-
 	level2->AddItem(new MenuActionItem("print hierarchy", [&]() {
 		printRoutes(
 			NetworkHierarchyIterator(networkHierarchy, currentNode),
@@ -131,33 +152,66 @@ void ConsoleApp::Start() {
 			);
 		}));
 
-	/*
+	
 	// ========== level 3 ==========
 	Loader().loadNetworkTable(*networkRoutes, *networkTable);
 
-	CliMenu* level3 = new CliMenu("3 level - tables");
-	main_menu.AddItem(level3);
+	level3->AddItem(new MenuActionItem("print all nextHop", [&]() {
+		for (auto current = networkTable->begin(); current != networkTable->end(); ++current) {
+			TableItem<std::string, ImplicitSequence<NetworkBlock>*> item = *current;
+			std::cout << NetworkRoute::bitsetToIp(item.data_->accessFirst()->data_.route->getNextHop()) << std::endl;
+		}
+	}));
 
-	level3->AddItem(new MenuActionItem("find nextHop", [&]() {
+	level3->AddItem(new MenuActionItem("find by nextHop", [&]() {
 		std::cout << "\nnext hop address" << std::endl;
 		std::string nextHop;
 		std::cin >> nextHop;
 
-		ImplicitSequence<NetworkRoute*>* rtSeq = nullptr;
-
-		if (networkTable->tryFind(nextHop, rtSeq)) {
-			for (NetworkRoute* rt : *rtSeq) {
-				rt->printRoute();
+		ImplicitSequence<NetworkBlock>** seqBlock = nullptr;
+		if (networkTable->tryFind(nextHop, seqBlock)) {
+			for (NetworkBlock nb : **seqBlock) {
+				nb.route->printRoute();
 			}
 		}
 	}));
-	*/
 
-	// ======== flush network ========
-	this->main_menu.AddItem(new MenuActionItem("flush", [&]()
-		{
-			delete networkRoutes;
-			networkRoutes = nullptr;
+
+	// ========== level 4 ==========
+	level4->AddItem(new MenuActionItem("sort by prefix", [&]() {
+		algSorter.sort(*algp.getSequence(), [&](NetworkBlock rtA, NetworkBlock rtB) {
+
+			size_t prefixA = rtA.route->getPrefix();
+			std::bitset<32> ipA= rtA.route->getNetworkAddress();
+			size_t prefixB = rtB.route->getPrefix();
+			std::bitset<32> ipB = rtB.route->getNetworkAddress();
+
+			//for (size_t bit = 31; bit > prefixA && bit > prefixB; --bit) {
+			for (int bit = 31; bit >= 0; --bit) {
+				if (ipA[bit] < ipB[bit]) {
+					return true;
+				}
+				else if (ipA[bit] > ipB[bit]) {
+					return false;
+				}
+			}
+			return rtA.route->getPrefix() < rtB.route->getPrefix();
+			});
+		}));
+
+	level4->AddItem(new MenuActionItem("sort by time", [&]() {
+		algSorter.sort(*algp.getSequence(), [&](NetworkBlock firstRt, NetworkBlock secondRt) {
+			return firstRt.route->getTtl() < secondRt.route->getTtl();
+			});
+		}));
+
+	level4->AddItem(new MenuActionItem("print routes", [&]() {
+		AlgorithmProcessor<NetworkBlock>().process(
+			algp.getSequence()->begin(),
+			algp.getSequence()->end(),
+			[&](NetworkBlock* rt) {
+				return Predicate::print(rt->route);
+			});
 		}));
 
 	// ======== start console app ========
@@ -206,8 +260,8 @@ void ConsoleApp::matchWithAddress(Iterator start, Iterator end) {
 	std::cin >> ipAddr;
 	std::bitset<32> compareRt = NetworkRoute::ipToBitset(ipAddr);
 	
-	algp.process(networkRoutes->begin(), networkRoutes->end(), [&](NetworkRoute* rt) {
-		return Predicate::matchWithAddress(compareRt, rt, true);
+	algp.process(start, end, [&](NetworkBlock* rt) {
+		return Predicate::matchWithAddress(compareRt, rt->route, true);
 		});
 };
 
@@ -222,14 +276,14 @@ void ConsoleApp::matchLifetime(Iterator start, Iterator end) {
 	int lowerBorder = stoi(lower);
 	int higherBorder = stoi(upper);
 
-	algp.process(start, end, [&](NetworkRoute* rt) {
-		return Predicate::matchLifetime(lowerBorder, higherBorder, rt, true);
+	algp.process(start, end, [&](NetworkBlock* rt) {
+		return Predicate::matchLifetime(lowerBorder, higherBorder, rt->route, true);
 	});
 };
 
 template<typename Iterator>
 void ConsoleApp::printRoutes(Iterator start, Iterator end) {
-	algp.process(start, end, [&](NetworkRoute* rt) {
-		return Predicate::print(rt);
+	algp.process(start, end, [&](NetworkBlock* rt) {
+		return Predicate::print(rt->route);
 		});
 };
