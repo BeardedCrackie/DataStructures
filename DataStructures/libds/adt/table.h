@@ -805,50 +805,55 @@ namespace ds::adt {
     template<typename K, typename T, typename ItemType>
     void GeneralBinarySearchTree<K, T, ItemType>::insert(const K& key, T data)
     {
-        BSTNodeType* node = nullptr;
-        if (this->tryFindNodeWithKey(key, node)) {
-            throw std::invalid_argument("GeneralBinarySearchTree<K, T, ItemType>::insert(const K& key, T data): key already exists");
-        }
         BSTNodeType* newNode = nullptr;
-        if (node == nullptr) {
+        if (this->isEmpty())
+        {
             newNode = &this->getHierarchy()->emplaceRoot();
         } 
-        if (key < node->data_.key_) { //todo check else if is needed
-            newNode = &this->getHierarchy()->insertLeftSon(*node);
+        else
+        {
+            BSTNodeType* parent = nullptr;
+            if (this->tryFindNodeWithKey(key, parent))
+            {
+                throw std::logic_error("Table already contains an element associated with given key!");
         }
-        else {
-            newNode = &this->getHierarchy()->insertRightSon(*node);
+            newNode = key > parent->data_.key_
+                ? &this->getHierarchy()->insertRightSon(*parent)
+                : &this->getHierarchy()->insertLeftSon(*parent);
         }
-        ++this->size_;
-        //todo balancetree
-        newNode->data_ = { key, data };
 
+        newNode->data_.key_ = key;
+        newNode->data_.data_ = data;
+
+        ++size_;
+        this->balanceTree(newNode);
     }
 
     template<typename K, typename T, typename ItemType>
     bool GeneralBinarySearchTree<K, T, ItemType>::tryFind(const K& key, T*& data) const
     {
-        BSTNodeType* node = nullptr;
-        if (this->tryFindNodeWithKey(key, node)) {
-            data = &node->data_.data_;
-            return true;
-        }
-        else {
+        BSTNodeType* nodeWithKey = nullptr;
+        if (!this->tryFindNodeWithKey(key, nodeWithKey))
+        {
             return false;
         }
+        data = &nodeWithKey->data_.data_;
+        return true;
     }
 
     template<typename K, typename T, typename ItemType>
     T GeneralBinarySearchTree<K, T, ItemType>::remove(const K& key)
     {
-        BSTNodeType* node = nullptr;
-        if (!this->tryFindNodeWithKey(key, node)) {
-            throw std::invalid_argument("GeneralBinarySearchTree<K, T, ItemType>::remove(const K& key): key not exists");
+        BSTNodeType* nodeWithKey = nullptr;
+        if (!this->tryFindNodeWithKey(key, nodeWithKey))
+        {
+            throw std::out_of_range("No such key!");
         }
-        T data = node->data_.data_;
-        this->removeNode(node);
-        --this->size_;
-        return data;
+
+        T result = nodeWithKey->data_.data_;
+        this->removeNode(nodeWithKey);
+        size_--;
+        return result;
     }
 
     template <typename K, typename T, typename ItemType>
@@ -880,34 +885,40 @@ namespace ds::adt {
     template<typename K, typename T, typename ItemType>
     bool GeneralBinarySearchTree<K, T, ItemType>::tryFindNodeWithKey(const K& key, BSTNodeType*& node) const
     {
-        BSTNodeType* cur = this->getHierarchy()->accessRoot();
-        while(cur != nullptr) {
-            if (key > cur->data_.key_) {
-                if (this->getHierarchy()->hasRightSon(*cur)) {
-                    cur = this->getHierarchy()->accessRightSon(*cur);
+        if (this->isEmpty())
+        {
+            return false;
                 }
-                else {
-                    node = cur;
+
+        node = this->getHierarchy()->accessRoot();
+        while (node->data_.key_ != key && !this->getHierarchy()->isLeaf(*node))
+        {
+            if (key < node->data_.key_)
+            {
+                if (this->getHierarchy()->hasLeftSon(*node))
+                {
+                    node = this->getHierarchy()->accessLeftSon(*node);
+                }
+                else
+                {
                     return false;
                 }
             }
-            else if (key < cur->data_.key_) {
-                if (this->getHierarchy()->hasLeftSon(*cur)) {
-                    cur = this->getHierarchy()->accessLeftSon(*cur);
+            else
+            {
+                if (this->getHierarchy()->hasRightSon(*node))
+                {
+                    node = this->getHierarchy()->accessRightSon(*node);
                 }
-                else {
-                    node = cur;
+                else
+                {
                     return false;
                 }
             }
-            else {
-                node = cur;
-                return true;
             }
+
+        return node->data_.key_ == key;
         }
-        node = nullptr;
-        return false;
-    }
 
     template<typename K, typename T, typename ItemType>
     void GeneralBinarySearchTree<K, T, ItemType>::rotateLeft(BSTNodeType* node)
@@ -930,8 +941,7 @@ namespace ds::adt {
     template<typename K, typename T>
     bool BinarySearchTree<K, T>::equals(const ADT& other)
     {
-        const BinarySearchTree<K, T>* otherTable = dynamic_cast<const BinarySearchTree<K, T>*>(&other);
-        return otherTable != nullptr && Table<K, T>::areEqual(*this, other);
+        return Table<K, T>::areEqual(*this, other);
     }
 
     //----------
