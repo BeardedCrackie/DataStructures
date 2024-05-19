@@ -151,8 +151,8 @@ namespace ds::adt {
         if (otherQueue == nullptr) {
             return false;
         }
-        int selfIndex = this->removalIndex_;
-        int otherIndex = otherQueue->removalIndex_;
+        size_t selfIndex = this->removalIndex_;
+        size_t otherIndex = otherQueue->removalIndex_;
         for (size_t i = 0; i < this->size(); i++) 
         {
             if (this->getSequence()->access(selfIndex)->data_ != otherQueue->getSequence()->access(otherIndex)->data_)
