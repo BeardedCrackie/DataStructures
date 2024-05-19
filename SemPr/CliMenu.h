@@ -27,17 +27,6 @@ public:
 };
 
 /*
- * class used for simple menu items with only name provided
- */
-class MenuSimpleItem : public MenuItem {
-public:
-    MenuSimpleItem(std::string name) : MenuItem(name) {};
-    virtual void apply() override {
-        printf("\n\n=== %s ===\n\n", this->getName().c_str());
-    };
-};
-
-/*
  * class used for menu items that points to function
  */
 class MenuActionItem : public MenuItem {

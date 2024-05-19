@@ -82,6 +82,9 @@ void ConsoleApp::Start() {
 	// ========== initialization ==========
 	SimpleLogger::log(LOG_INFO, "Console App init");
 	Loader().load("C:\\Users\\potoc\\source\\repos\\BeardedCrackie\\DataStructures\\SemPr\\RT.csv", *networkRoutes);
+	algp.process(networkRoutes->begin(), networkRoutes->end(), [](NetworkBlock* nb) {
+		return true;	//init load of sequence for level 4
+		});
 
 	// ========== main menu ==========
 	CliMenu* level1 = new CliMenu("1 level - sequence");
