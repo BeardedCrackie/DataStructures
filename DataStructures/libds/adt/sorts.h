@@ -126,10 +126,27 @@ namespace ds::adt
     template<typename T>
     void SelectSort<T>::sort(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare)
     {
-        // TODO 12
-        // po implementacii vymazte vyhodenie vynimky!
-        throw std::runtime_error("Not implemented yet");
+        for (size_t i = 0; i < is.size(); i++)
+        {
+            T min = is.access(i)->data_;
+            size_t minIndex = i;
+            for (size_t j = i + 1; j < is.size(); j++)
+            {
+                if (compare(is.access(i)->data_, min)) {
+                    min = is.access(j)->data_;
+                    minIndex = j;
+                }
+            }
+            if (i != minIndex) {
+                std::swap(is.access(i)->data_, is.access(minIndex)->data_);
+            }           
+        }
     }
+
+    /* todo remember
+    const UJ* &
+    UJ* const &
+    */
 
     template<typename T>
     void InsertSort<T>::sort(amt::ImplicitSequence<T>& is, std::function<bool(const T&, const T&)> compare)

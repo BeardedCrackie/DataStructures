@@ -2,7 +2,7 @@
 
 #include <complexities/complexity_analyzer.h>
 #include <random>
-#include <vector>
+#include <libds/adt/table.h>
 
 namespace ds::utils
 {
@@ -21,11 +21,15 @@ namespace ds::utils
         size_t getRandomIndex() const;
         int getRandomData() const;
 
+        int index_;
+        int data_;
+
     private:
         std::default_random_engine rngData_;
-        std::default_random_engine rngIndex_;
-        size_t index_;
-        int data_;
+        std::default_random_engine rngKey_;
+        
+        //todo vytvorit sekvenciu klucov
+
     };
 
     /**
@@ -57,26 +61,37 @@ namespace ds::utils
     TableAnalyzer<Table>::TableAnalyzer(const std::string& name) :
         ComplexityAnalyzer<Table>(name),
         rngData_(144),
-        rngIndex_(144),
+        rngKey_(144),
         index_(0),
         data_(0)
     {
         this->registerBeforeOperation(
-            [this](Table& table)
+            [this](Table& structure)
             {
-                std::uniform_int_distribution dist(100, 1000000);
-                this->data_ = dist(this->rngData_);
+                std::uniform_int_distribution dist(1, 10000000);
+                this->key_ = dist(this->rngKey_);
+                this->data_ = this->rngData_();
+                while (structure.contains(key)) {
+                    this->key_ = dist(this->rngKey_);
+                }
             }
-        );
+        )
     }
 
     template <class Table>
     void TableAnalyzer<Table>::growToSize(Table& structure, size_t size)
     {
         size_t count = size - structure.size();
-        for (size_t i = 0; i < count; ++i)
+        std::uniform_int_distribution dist(1, 10000000);
+        for (size_t i = 0; i < count; i++)
         {
-            structure.push_back(this->rngData_());
+            int key = dist(this->rngKey_);
+            int data = this->rngData_();
+            
+            while (structure.contains(key)) {
+                key = dist(this->rngKey_);
+            }
+            structure.insert(key, data);
         }
     }
 
@@ -112,6 +127,6 @@ namespace ds::utils
     inline TablesAnalyzer::TablesAnalyzer() :
         CompositeAnalyzer("Tables")
     {
-        this->addAnalyzer(std::make_unique<TableInsertAnalyzer<std::vector<int>>>("vector-insert"));
-        //this->addAnalyzer(std::make_unique<TableInsertAnalyzer<std::list<int>>>("list-insert"));
+        this->addAnalyzer(std::make_unique<TableInsertAnalyzer<ds::adt::SortedSequenceTable<int,int>>>("SST-insert"));
+        this->addAnalyzer(std::make_unique<TableInsertAnalyzer<ds::adt::BinarySearchTree<int,int>>>("BST-insert"));
     }

@@ -2,6 +2,7 @@
 
 #include <tests/root.h>
 #include <complexities/list_analyzer.h>
+//#include <complexities/table_analyzer.h>
 #include <msclr\marshal_cppstd.h>
 
 namespace WF = System::Windows::Forms;
@@ -49,8 +50,8 @@ std::vector<std::unique_ptr<ds::tests::Test>> createTests()
     // cv 12
 	adt->add_test(std::make_unique<ds::tests::NonSequenceTableTest>());
 
-	// TODO 12
-	//adt->add_test(std::make_unique<ds::tests::SortTest>());
+	// cv 13
+	adt->add_test(std::make_unique<ds::tests::SortTest>());
 
 	root->add_test(std::move(mm));
 	root->add_test(std::move(amt));
@@ -65,6 +66,8 @@ std::vector<std::unique_ptr<ds::utils::Analyzer>> createAnalyzers()
 	std::vector<std::unique_ptr<ds::utils::Analyzer>> analyzers;
 	
 	analyzers.emplace_back(std::make_unique<ds::utils::ListsAnalyzer>());
+	//todo 
+	//analyzers.emplace_back(std::make_unique<ds::utils::TablesAnalyzer>());
 
 	return analyzers;
 }
