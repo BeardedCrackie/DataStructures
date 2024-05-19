@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="NetworkRoute">
+    <Position X="6.75" Y="0.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAKAAAAAAASgAAAAAkAADQgAAAhAggIEAAAAgCACIAA=</HashCode>
+      <FileName>NetworkRoute.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="NetworkBlock">
+    <Position X="0.5" Y="0.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQBAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NetworkRoute.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="NetworkHierarchyBlock">
+    <Position X="0.5" Y="2.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQAAAAACAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NetworkRoute.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

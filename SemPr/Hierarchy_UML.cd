@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="ConsoleApp" Collapsed="true">
+    <Position X="2.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAABAAQAQKAAEQQAAAAAgAQAAAAAAgAAQBAAAIAAAAA=</HashCode>
+      <FileName>ConsoleApp.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="currentNode" />
+    </ShowAsAssociation>
+  </Class>
+  <Struct Name="ds::amt::MultiWayExplicitHierarchyBlock&lt;DataType&gt;" Collapsed="true">
+    <Position X="2.5" Y="2.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>C:\Users\potoc\source\repos\BeardedCrackie\DataStructures\DataStructures\libds\amt\explicit_hierarchy.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

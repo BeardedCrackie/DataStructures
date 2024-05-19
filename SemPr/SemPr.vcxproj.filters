@@ -38,5 +38,26 @@
     <ClInclude Include="SimpleLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ConsoleApp_UML.cd" />
+    <None Include="Loader_UML.cd" />
+    <None Include="Algorithm_UML.cd" />
+    <None Include="NetworkRoute_UML.cd" />
+    <None Include="MenuItem_UML.cd" />
+    <None Include="SimpleLogger_UML.cd" />
+    <None Include="BitSet_UML.cd" />
+    <None Include="Vector_UML.cd" />
+    <None Include="ImplicitSequence_UML.cd" />
+    <None Include="Hierarchy_UML.cd" />
+    <None Include="Sorter_UML.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SemPr.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="MenuItem">
+    <Position X="3.75" Y="1.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAIAABAAAAAAAAAAAAAEAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>CliMenu.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MenuActionItem">
+    <Position X="3.75" Y="4.5" Width="6.25" />
+    <TypeIdentifier>
+      <HashCode>BAAAEAAAAAAQCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CliMenu.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CliMenu">
+    <Position X="0.75" Y="4.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAABEgAAAAAAAAAAAAAEAEAAgIAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>CliMenu.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Typedef Name="callback_function" Collapsed="true">
+    <Position X="6.5" Y="1.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CliMenu.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

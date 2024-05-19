@@ -137,7 +137,26 @@
     <ClInclude Include="ConsoleApp.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="NetworkRoute.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SimpleLogger.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Algorithm_UML.cd" />
+    <None Include="BitSet_UML.cd" />
+    <None Include="Sorter_UML.cd" />
+    <None Include="Hierarchy_UML.cd" />
+    <None Include="ImplicitSequence_UML.cd" />
+    <None Include="Vector_UML.cd" />
+    <None Include="SimpleLogger_UML.cd" />
+    <None Include="MenuItem_UML.cd" />
+    <None Include="NetworkRoute_UML.cd" />
+    <None Include="Loader_UML.cd" />
+    <None Include="ConsoleApp_UML.cd">
+      <DeploymentContent>false</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SemPr.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
