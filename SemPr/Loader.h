@@ -32,33 +32,28 @@ void Loader::load(std::string filePath, ImplicitSequence<NetworkBlock>& routeSeq
 		SimpleLogger::log(LOG_ERROR,"File is not present!");
 		return;
 	}
-	std::string line;
-	getline(inputFile, line); //first line is header
-
+	
 	std::string value;
+	getline(inputFile, value); //first getLine is source, not important so skip
 
-	//getline(inputFile, line) && line != "")
-	while (getline(inputFile, line) && line != "")
-	{
-		std::stringstream loadedStream(line);
-		if (line == "") {
-			break;
-		}
+	do	{
+		getline(inputFile, value, ';'); 
         NetworkRoute* newRoute = new NetworkRoute();
-        getline(loadedStream, value, ';'); //source, not important so skip
-		getline(loadedStream, value, '/'); //address
+		getline(inputFile, value, '/'); //address
 		newRoute->setNetworkAddress(value);
-		getline(loadedStream, value, ';'); //prefix
+		getline(inputFile, value, ';'); //prefix
 		newRoute->setNetworkPrefix(stoi(value));
-		getline(loadedStream, value, ';'); //metrics, not important so skip
-		getline(loadedStream, value, ';'); //next-hop
+		getline(inputFile, value, ';'); //metrics, not important so skip
+		getline(inputFile, value, ';'); //next-hop
 		newRoute->setNextHop(value.substr(3));
-		getline(loadedStream, value, ';'); //time in string
+		getline(inputFile, value, ';'); //ttl
 		newRoute->setTtl(value);
 		routeSequence.insertLast().data_.route = newRoute;
-	}
+	} while (getline(inputFile, value) && value != "");
+
 	inputFile.close();
 	inputFile.clear();
+
 	SimpleLogger::log(LOG_INFO, "Sequence loaded with size: " + std::to_string(routeSequence.size()));
 }
 
