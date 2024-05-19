@@ -62,6 +62,7 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence,
 {
 	SimpleLogger::log(LOG_DEBUG, "Start hierarchy loading");
 
+	/*
 	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
 		NetworkBlock rtBlock = *current;
 		auto currNode = networkHierarchy.accessRoot();
@@ -87,6 +88,38 @@ void Loader::loadNetworkHierarchy(ImplicitSequence<NetworkBlock>& routeSequence,
 		}
 		currNode->data_.route = rtBlock.route;
 	}
+	*/
+
+	MultiWayExplicitHierarchyBlock<NetworkHierarchyBlock>* currOctetNode[] = { nullptr, nullptr, nullptr, nullptr };	//tmp octet node init
+
+	auto rootNode = networkHierarchy.accessRoot();	//root node cache
+	size_t octetValue = 0;	//tmp value for octet caching
+
+	for (auto current = routeSequence.begin(); current != routeSequence.end(); ++current) {
+		NetworkBlock rtBlock = *current;
+
+		auto currNode = rootNode; //first curr is always root
+
+		for (size_t i = 0; i < 3; i++)	//4th node is always unique, only 3 loops are needed
+		{
+			octetValue = rtBlock.route->getOctet(i);
+			if (currOctetNode[i] == nullptr || currOctetNode[i]->data_.octetValue != octetValue) {	//if octet does not exists
+				currNode = &networkHierarchy.emplaceSon(*currNode, networkHierarchy.degree(*currNode));	//create octet node as child of current and assign is as current
+				currNode->data_.octetValue = octetValue;	//assign octet value for current
+				currOctetNode[i] = currNode;	//assign current to octet node pointer (cache)
+				currOctetNode[i + 1] = nullptr;	//set cache of next octet node as null because new line has been created
+			}
+			else {
+				currNode = currOctetNode[i];	//if value exists, use it and save it as current
+			}			
+		}
+
+		currNode = &networkHierarchy.emplaceSon(*currNode, networkHierarchy.degree(*currNode));	//4th node is always unique, so only create without checking
+		currNode->data_.octetValue = rtBlock.route->getOctet(3);	//set octet value for 4th octet node
+		currNode->data_.route = rtBlock.route;	//set route for 4th octet node
+
+	}
+
 	SimpleLogger::log(LOG_INFO, "Hierarchy loaded with size: " + std::to_string(networkHierarchy.size()));
 }
 
